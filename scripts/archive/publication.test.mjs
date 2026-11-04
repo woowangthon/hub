@@ -4,7 +4,7 @@ import { currentPublication, guardBaseline } from './publication.mjs';
 
 const timestamp = minute => `2026-11-04T00:${String(minute).padStart(2, '0')}:00Z`;
 const run = (id, minute, attempt = 1) => ({ id, run_attempt: attempt, updated_at: timestamp(minute), head_branch: 'main', event: 'schedule', path: '.github/workflows/archive-auto.yml', head_repository: { full_name: 'owner/hub' } });
-const job = (id, buildAttempt, minute, conclusion = 'success') => ({ name: `Pages 게시·성공 명세 저장 (build ${id}:${buildAttempt})`, steps: [{ name: '사이트 게시', started_at: timestamp(minute - 1), completed_at: timestamp(minute), conclusion }] });
+const job = (id, buildAttempt, minute, conclusion = 'success') => ({ name: `Publish Archive (build ${id}:${buildAttempt})`, steps: [{ name: 'Deploy Archive Pages', started_at: timestamp(minute - 1), completed_at: timestamp(minute), conclusion }] });
 const marker = (id, attempt, candidate = false) => ({ id: 100 + id, name: `archive-${candidate ? 'candidate' : 'published'}-state-${id}-${attempt}`, size_in_bytes: 500, expired: false, workflow_run: { id, head_branch: 'main' } });
 function api({ runs = [], jobs = {}, artifacts = [], deployments = [], statuses = {} } = {}) {
   return {
@@ -30,6 +30,13 @@ test('first failed attempt BEFORE Pages allows scheduled or full retry', async (
     statuses: { 10: [{ state: 'failure', log_url: 'https://github.com/owner/hub/actions/runs/1/job/100' }] } });
   assert.equal(await currentPublication(source, 'owner/hub'), null);
   assert.doesNotThrow(() => guardBaseline({ baselinePublication: null }, null));
+});
+
+test('renamed publication step still recognizes historical deployments', async () => {
+  const historical = job(1, 1, 4);
+  historical.steps[0].name = '사이트 게시';
+  const source = api({ runs: [run(1, 5)], jobs: { '1:1': [historical] }, artifacts: [marker(1, 1)] });
+  assert.equal((await currentPublication(source, 'owner/hub')).identity, '1:1:published');
 });
 test('new publication with failed marker upload recovers ITS immutable candidate, never older state', async () => {
   const source = api({ runs: [run(1, 5), run(2, 10)], jobs: { '1:1': [job(1, 1, 4)], '2:1': [job(2, 1, 9)] }, artifacts: [marker(1, 1), marker(2, 1, true)] });

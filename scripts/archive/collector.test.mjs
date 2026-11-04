@@ -191,7 +191,7 @@ test('two deployment workflows share one lock; Pages runs only after successful 
   assert.equal(auto.jobs.deploy.steps.find(s => s.id === 'deployment').with.artifact_name, '${{ needs.build.outputs.pages_artifact }}');
   assert.equal(auto.jobs.build.outputs.pages_artifact, '${{ steps.plan.outputs.pages_artifact }}');
   assert.equal(auto.jobs.deploy.needs, 'build'); assert.equal(auto.jobs.build.permissions.pages, undefined);
-  assert.ok(auto.jobs.build.steps.find(s => s.name === '검증 자료 캐시 복원').if.includes('!inputs.full_rebuild'));
+  assert.ok(auto.jobs.build.steps.find(s => s.name === 'Restore Archive Cache').if.includes('!inputs.full_rebuild'));
   assert.ok(auto.jobs.deploy.steps.findIndex(s => s.id === 'deployment') < auto.jobs.deploy.steps.findIndex(s => s.with?.name?.startsWith('archive-published-state-')));
   for (const job of Object.values(auto.jobs)) for (const step of job.steps) if (step.uses) assert.match(step.uses, /@[a-f0-9]{40}$/);
 });

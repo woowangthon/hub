@@ -9,7 +9,7 @@ const artifact = { id: 8, name: 'archive-published-state-5-1', size_in_bytes: 10
 const run = { id: 5, head_branch: 'main', run_attempt: 1, updated_at: '2026-11-04T00:05:00Z', event: 'schedule', path: '.github/workflows/archive-auto.yml', head_repository: { full_name: 'owner/hub' } };
 const history = {
   '/actions/runs?branch=main&per_page=100&page=1': { workflow_runs: [run] },
-  '/actions/runs/5/attempts/1/jobs?per_page=100&page=1': { jobs: [{ name: 'Pages 게시·성공 명세 저장 (build 5:1)', steps: [{ name: '사이트 게시', conclusion: 'success', started_at: '2026-11-04T00:01:00Z', completed_at: '2026-11-04T00:02:00Z' }] }] },
+  '/actions/runs/5/attempts/1/jobs?per_page=100&page=1': { jobs: [{ name: 'Publish Archive (build 5:1)', steps: [{ name: 'Deploy Archive Pages', conclusion: 'success', started_at: '2026-11-04T00:01:00Z', completed_at: '2026-11-04T00:02:00Z' }] }] },
   '/deployments?environment=github-pages&per_page=100&page=1': [],
 };
 function mock(entries) {

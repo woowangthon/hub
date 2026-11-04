@@ -1,5 +1,6 @@
 // These names are an audit contract: changing the workflow step requires a history migration.
-export const publishStepName = '사이트 게시';
+export const publishStepName = 'Deploy Archive Pages';
+const publishStepNames = new Set([publishStepName, '사이트 게시']);
 const paths = ['.github/workflows/archive-auto.yml', '.github/workflows/archive-full.yml'];
 const date = value => {
   const result = Date.parse(value);
@@ -19,7 +20,7 @@ export async function currentPublication(api, repository) {
     for (let attempt = run.run_attempt; attempt >= 1; attempt--) {
       const jobs = await api.list(`/actions/runs/${run.id}/attempts/${attempt}/jobs`, 'jobs');
       for (const job of jobs) {
-        const step = job.steps?.find(s => s.name === publishStepName);
+        const step = job.steps?.find(s => publishStepNames.has(s.name));
         if (!step || !step.started_at || step.conclusion === 'skipped') continue;
         const event = { runId: run.id, attempt, identity: `${run.id}:${attempt}`,
           time: date(step.completed_at ?? step.started_at), success: step.conclusion === 'success' };
