@@ -4,7 +4,7 @@ on:
   push:
     branches: ['W*']
   schedule:
-    - cron: '10 15 * * *' # 매일 한국 시간 00:10
+    - cron: '10 15 * * *' # Daily at 00:10 Asia/Seoul
   workflow_call:
     inputs:
       full_rebuild:
