@@ -40,7 +40,7 @@ export function githubSource(repository, token, fetcher = fetch) {
   return {
     async snapshot(branch, commit) {
       validateBranch(branch);
-      const ref = commit ? { object: { sha: checkSha(commit) } } : await json(`/git/ref/heads/${repository === 'woowangthon/hub' && branch === 'W01' ? 'archive-page-test' : branch}`, true);
+      const ref = commit ? { object: { sha: checkSha(commit) } } : await json(`/git/ref/heads/${branch}`, true);
       if (!ref) return { branch, commitSha: null, treeSha: null };
       const sha = checkSha(ref.object.sha);
       const commitData = await json(`/git/commits/${sha}`);
