@@ -1,4 +1,4 @@
-name: 전시회 전체 재배포
+name: Archive Full Deployment
 
 on:
   workflow_dispatch:

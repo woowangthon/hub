@@ -1,4 +1,4 @@
-name: 전시회 자동 배포
+name: Archive Automatic Deployment
 
 on:
   push:
@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   validate:
-    name: 제출 JSON·이미지 검사
+    name: Validate Archive Submission
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -35,7 +35,7 @@ jobs:
           node-version: '24'
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
       - run: pnpm install --frozen-lockfile
-      - name: 푸시한 커밋 검사
+      - name: Validate Submitted Commit
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -44,7 +44,7 @@ jobs:
         run: node scripts/archive.mjs validate --branch "$SUBMISSION_BRANCH" --sha "$SUBMISSION_SHA"
 
   build:
-    name: 변경 확인·수집·빌드
+    name: Collect and Build Archive
     if: github.event_name != 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -68,7 +68,7 @@ jobs:
           node-version: '24'
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
       - run: pnpm install --frozen-lockfile
-      - name: 마지막 성공 배포와 비교·커밋 고정
+      - name: Plan Archive Build
         id: plan
         env:
           GH_TOKEN: ${{ github.token }}
@@ -80,33 +80,33 @@ jobs:
           else
             node scripts/archive.mjs plan
           fi
-      - name: 검증 자료 캐시 복원
+      - name: Restore Archive Cache
         if: steps.plan.outputs.needs_build == 'true' && !inputs.full_rebuild
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: .archive/cache
           key: archive-data-v1-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: archive-data-v1-
-      - name: 변경 자료 수집·검증
+      - name: Collect and Validate Archive
         if: steps.plan.outputs.needs_build == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: node scripts/archive.mjs collect
-      - name: 회귀 테스트
+      - name: Run Regression Tests
         if: steps.plan.outputs.needs_build == 'true'
         run: pnpm test
-      - name: 실제 제출 자료로 타입 검사·빌드
+      - name: Build Archive Site
         if: steps.plan.outputs.needs_build == 'true'
         run: pnpm build:archive
-      - name: 다음 실행용 캐시 저장
+      - name: Save Archive Cache
         if: steps.plan.outputs.needs_build == 'true'
         continue-on-error: true
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: .archive/cache
           key: archive-data-v1-${{ github.run_id }}-${{ github.run_attempt }}
-      - name: 배포 후보 명세 보관
+      - name: Upload Archive Candidate
         if: steps.plan.outputs.needs_build == 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
@@ -115,7 +115,7 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 90
-      - name: 사이트 artifact 업로드
+      - name: Upload Archive Site
         if: steps.plan.outputs.needs_build == 'true'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
@@ -123,7 +123,7 @@ jobs:
           name: ${{ steps.plan.outputs.pages_artifact }}
 
   deploy:
-    name: Pages 게시·성공 명세 저장 (build ${{ github.run_id }}:${{ needs.build.outputs.build_attempt }})
+    name: Publish Archive (build ${{ github.run_id }}:${{ needs.build.outputs.build_attempt }})
     needs: build
     if: needs.build.outputs.needs_build == 'true'
     runs-on: ubuntu-latest
@@ -138,7 +138,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: 검증한 빌드의 게시 검사 코드 가져오기
+      - name: Check Out Verified Archive Build
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ needs.build.outputs.code_sha }}
@@ -146,22 +146,22 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: '24'
-      - name: 후보 명세 가져오기
+      - name: Download Archive Candidate
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: ${{ needs.build.outputs.candidate_artifact }}
           path: state
-      - name: 최신 게시 상태와 후보 기준 재확인
+      - name: Verify Archive Publication Baseline
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: node scripts/archive/guard.mjs
-      - name: 사이트 게시
+      - name: Deploy Archive Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
         with:
           artifact_name: ${{ needs.build.outputs.pages_artifact }}
-      - name: 성공한 배포의 기준 명세 저장
+      - name: Save Archive Publication State
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: archive-published-state-${{ github.run_id }}-${{ github.run_attempt }}

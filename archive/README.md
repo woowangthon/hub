@@ -66,7 +66,7 @@
 ## 3. 제출하고 결과 확인하기
 
 1. 본인 팀 브랜치(`W01`~`W51`)에 커밋하고 푸시하세요.
-2. GitHub의 **Actions → 전시회 자동 배포 → 제출 JSON·이미지 검사**를 확인하세요.
+2. GitHub의 **Actions → Archive Automatic Deployment → Validate Archive Submission**를 확인하세요.
 3. 검사에 실패하면 오류 메시지에 표시된 항목을 수정하고 다시 푸시하세요.
 
 검사를 통과해도 사이트에 즉시 표시되지는 않습니다.
