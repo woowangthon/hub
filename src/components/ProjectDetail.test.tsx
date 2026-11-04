@@ -10,12 +10,12 @@ import { testProjects } from '../test/projects';
 const card = () => screen.getByRole('link', { name: /^캠퍼스 길잡이 .* 상세 보기$/ });
 function gallery() { window.history.replaceState(null, '', '#exhibition'); render(<App />); }
 
-describe('작품 상세', () => {
+describe('프로젝트 상세', () => {
   it('복사 완료 안내는 잠시 후 사라지며 다시 복사하면 표시 시간이 갱신된다', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
     render(<ProjectDetail project={testProjects[0]} open onClose={vi.fn()} onRestore={vi.fn()} />);
-    const copy = await screen.findByRole('button', { name: '작품 주소 복사' });
+    const copy = await screen.findByRole('button', { name: '프로젝트 주소 복사' });
     vi.useFakeTimers();
     await act(async () => { fireEvent.click(copy); });
     expect(screen.getByText('주소를 복사했습니다.')).toBeVisible();
@@ -30,7 +30,7 @@ describe('작품 상세', () => {
   it('복사 실패 시 직접 복사할 주소는 시간 제한 없이 유지된다', async () => {
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: vi.fn().mockRejectedValue(new Error('denied')) } });
     render(<ProjectDetail project={testProjects[0]} open onClose={vi.fn()} onRestore={vi.fn()} />);
-    const copy = await screen.findByRole('button', { name: '작품 주소 복사' });
+    const copy = await screen.findByRole('button', { name: '프로젝트 주소 복사' });
     vi.useFakeTimers();
     await act(async () => { fireEvent.click(copy); });
     act(() => vi.advanceTimersByTime(10000));
@@ -50,13 +50,13 @@ describe('작품 상세', () => {
     expect(result.violations).toEqual([]);
   });
 
-  it('이전 작품의 늦은 복사 결과가 새 작품의 상태나 초점을 바꾸지 않는다', async () => {
+  it('이전 프로젝트의 늦은 복사 결과가 새 프로젝트의 상태나 초점을 바꾸지 않는다', async () => {
     let rejectCopy: (reason: Error) => void = () => {};
     const pending = new Promise<void>((_, reject) => { rejectCopy = reject; });
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: () => pending } });
     const props = { open: true, onClose: vi.fn(), onRestore: vi.fn() };
     const view = render(<ProjectDetail {...props} project={testProjects[0]} />);
-    fireEvent.click(await screen.findByRole('button', { name: '작품 주소 복사' }));
+    fireEvent.click(await screen.findByRole('button', { name: '프로젝트 주소 복사' }));
     view.rerender(<ProjectDetail {...props} project={testProjects[1]} />);
     await act(async () => { rejectCopy(new Error('denied')); });
     expect(screen.queryByRole('textbox', { name: '공유 주소' })).not.toBeInTheDocument();
@@ -75,7 +75,7 @@ describe('작품 상세', () => {
     });
     await screen.findByRole('dialog', { name: '프로젝트2' });
     expect(within(screen.getByRole('dialog')).getByRole('heading', { level: 2 })).toHaveFocus();
-    fireEvent.click(screen.getByRole('button', { name: '작품 상세 닫기' }));
+    fireEvent.click(screen.getByRole('button', { name: '프로젝트 상세 닫기' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(document.getElementById('scene-exhibition')!.scrollTop).toBe(0);
     expect(screen.getByRole('heading', { name: '전시회 월' })).toHaveFocus();
@@ -95,7 +95,7 @@ describe('작품 상세', () => {
     gallery(); fireEvent.click(card());
     await screen.findByRole('dialog');
     const back = vi.spyOn(window.history, 'back').mockImplementation(() => {});
-    const close = screen.getByRole('button', { name: '작품 상세 닫기' });
+    const close = screen.getByRole('button', { name: '프로젝트 상세 닫기' });
     fireEvent.click(close); fireEvent.click(close);
     expect(back).toHaveBeenCalledTimes(1);
   });
@@ -120,7 +120,7 @@ describe('작품 상세', () => {
     expect(panel.style.overflow).toBe('');
     await act(async () => window.history.forward());
     await screen.findByRole('dialog', { name: '캠퍼스 길잡이' });
-    fireEvent.click(screen.getByRole('button', { name: '작품 상세 닫기' }));
+    fireEvent.click(screen.getByRole('button', { name: '프로젝트 상세 닫기' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(window.location.hash).toBe('#exhibition');
   });
@@ -132,22 +132,22 @@ describe('작품 상세', () => {
     expect(document.querySelector('.experience')).toHaveAttribute('data-scene', 'exhibition');
     expect(window.location.hash).toBe(projectHash('project-1'));
     expect(screen.queryByRole('heading', { name: 'AI 우왕톤' })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: '작품 상세 닫기' }));
+    fireEvent.click(screen.getByRole('button', { name: '프로젝트 상세 닫기' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(window.location.pathname).toBe('/archive/');
     expect(document.getElementById('scene-exhibition')?.scrollTop).toBe(0);
     expect(screen.getByRole('heading', { name: '전시회 월' })).toHaveFocus();
   });
 
-  it('현재 작품 주소를 복사하며 클립보드 실패 시 선택 가능한 주소를 제공한다', async () => {
+  it('현재 프로젝트 주소를 복사하며 클립보드 실패 시 선택 가능한 주소를 제공한다', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
     gallery(); fireEvent.click(card());
-    fireEvent.click(await screen.findByRole('button', { name: '작품 주소 복사' }));
+    fireEvent.click(await screen.findByRole('button', { name: '프로젝트 주소 복사' }));
     await screen.findByText('주소를 복사했습니다.');
     expect(writeText).toHaveBeenCalledWith(`${window.location.origin}/#exhibition/project/project-1`);
     writeText.mockRejectedValueOnce(new Error('denied'));
-    fireEvent.click(screen.getByRole('button', { name: '작품 주소 복사' }));
+    fireEvent.click(screen.getByRole('button', { name: '프로젝트 주소 복사' }));
     expect(await screen.findByRole('textbox', { name: '공유 주소' })).toHaveFocus();
   });
 

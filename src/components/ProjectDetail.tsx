@@ -122,8 +122,8 @@ export function ProjectDetail({ project, open, onClose, onRestore }: {
         </div>
       </div>
       <div className="detail-controls">
-        <Button variant="ghost" size="icon" aria-label="작품 주소 복사" onClick={copyUrl}><Icon src={linkIcon} size={18} /></Button>
-        <DialogClose asChild><Button variant="ghost" size="icon" aria-label="작품 상세 닫기"><Icon src={closeIcon} size={18} /></Button></DialogClose>
+        <Button variant="ghost" size="icon" aria-label="프로젝트 주소 복사" onClick={copyUrl}><Icon src={linkIcon} size={18} /></Button>
+        <DialogClose asChild><Button variant="ghost" size="icon" aria-label="프로젝트 상세 닫기"><Icon src={closeIcon} size={18} /></Button></DialogClose>
         <div className={copyStatus ? 'detail-copy-feedback' : 'sr-only'}><p role="status" aria-atomic="true">{copyStatus}</p>
           {copyFailed && <input ref={fallbackRef} aria-label="공유 주소" readOnly value={projectUrl(project.id)} onFocus={event => event.currentTarget.select()} />}
         </div>

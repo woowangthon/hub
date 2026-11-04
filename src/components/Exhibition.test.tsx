@@ -13,7 +13,7 @@ function openGallery() {
 }
 
 describe('전시회 미리보기', () => {
-  it('빈 제출 목록에서도 예시 작품을 끼워 넣거나 상세를 생성하지 않는다', () => {
+  it('빈 제출 목록에서도 예시 프로젝트를 끼워 넣거나 상세를 생성하지 않는다', () => {
     render(<Exhibition projects={[]} active reducedMotion />);
     expect(screen.getByText('0개 프로젝트')).toBeVisible();
     expect(screen.queryByRole('article')).not.toBeInTheDocument();
@@ -21,7 +21,7 @@ describe('전시회 미리보기', () => {
   });
 
   it('주입된 제출 자료를 목록과 공유 주소 상세에 일관되게 사용한다', () => {
-    const project = { ...testProjects[0], id: 'submitted-project', title: '새 제출 작품' };
+    const project = { ...testProjects[0], id: 'submitted-project', title: '새 제출 프로젝트' };
     window.history.replaceState(null, '', '#exhibition/project/submitted-project');
     const view = render(<Exhibition projects={[project]} active reducedMotion />);
     expect(screen.getByRole('dialog', { name: project.title })).toBeVisible();
@@ -70,7 +70,7 @@ describe('전시회 미리보기', () => {
     expect(screen.getAllByRole('article')).toHaveLength(12);
   });
 
-  it('프로젝트명, 팀명, 기술명과 복수 검색어로 예시 작품을 찾는다', () => {
+  it('프로젝트명, 팀명, 기술명과 복수 검색어로 예시 프로젝트를 찾는다', () => {
     const search = openGallery();
     expect(screen.getAllByRole('article')).toHaveLength(12);
     for (const [query, title] of [['프로젝트12', '프로젝트12'], ['팀3', '프로젝트3'], ['  rEaCt   Spring  ', '캠퍼스 길잡이']]) {
@@ -94,7 +94,7 @@ describe('전시회 미리보기', () => {
     expect(screen.getAllByRole('article')).toHaveLength(12);
   });
 
-  it('한 개의 활성 main과 푸터 링크, 작품 주소를 가진 카드 링크를 제공한다', () => {
+  it('한 개의 활성 main과 푸터 링크, 프로젝트 주소를 가진 카드 링크를 제공한다', () => {
     openGallery();
     expect(screen.getAllByRole('main')).toHaveLength(1);
     expect(screen.getByRole('banner')).toBeVisible();

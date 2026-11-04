@@ -4,7 +4,7 @@ import { App } from './App';
 
 vi.unmock('virtual:archive-projects');
 
-it('수집 전 화면에는 임시 카드나 샘플 작품을 넣지 않는다', () => {
+it('수집 전 화면에는 임시 카드나 샘플 프로젝트을 넣지 않는다', () => {
   window.history.replaceState(null, '', '#exhibition');
   render(<App />);
   expect(screen.getByText('0개 프로젝트')).toBeVisible();

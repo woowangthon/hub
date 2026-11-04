@@ -60,7 +60,7 @@ export async function main(args = process.argv.slice(2)) {
     if (!config.teamNumbers.map(branchFor).includes(branch)) fail(branch, 'branch', '등록되지 않은 팀입니다. 운영진에게 팀 번호 등록을 요청해 주세요.');
     const snapshot = await source.snapshot(branch, values.sha);
     if (!snapshot.treeSha) fail(branch, 'archive/', 'archive 폴더가 없습니다. 제출 예시의 폴더 구조를 확인해 주세요.');
-    if (snapshot.treeSha === config.templateTreeSha) fail(branch, 'archive/', '제출 예시가 그대로입니다. JSON과 이미지를 실제 작품 자료로 교체해 주세요.');
+    if (snapshot.treeSha === config.templateTreeSha) fail(branch, 'archive/', '제출 예시가 그대로입니다. JSON과 이미지를 실제 프로젝트 자료로 교체해 주세요.');
     plan = { codeSha, rulesKey: key, fingerprint: digest(snapshot), full: true, teams: [{ ...snapshot, status: 'submitted' }] };
   } else {
     plan = JSON.parse(await readFile(path.join(stateDir, 'plan.json'), 'utf8'));
@@ -76,7 +76,7 @@ export async function main(args = process.argv.slice(2)) {
     await cp(path.join(generated, 'public/archives'), path.join(root, 'public/archives'), { recursive: true });
   }
   const { stats } = result;
-  await summary(`## ${command === 'validate' ? '제출 검사 성공' : '수집 성공'}\n\n| 작품 | 미제출 | 다운로드 파일 | 재사용 파일 | 이미지 해독 검사 |\n|---|---|---|---|---|\n| ${stats.projects} | ${stats.missing} | ${stats.downloaded} | ${stats.reused} | ${stats.decoded} |`);
+  await summary(`## ${command === 'validate' ? '제출 검사 성공' : '수집 성공'}\n\n| 프로젝트 | 미제출 | 다운로드 파일 | 재사용 파일 | 이미지 해독 검사 |\n|---|---|---|---|---|\n| ${stats.projects} | ${stats.missing} | ${stats.downloaded} | ${stats.reused} | ${stats.decoded} |`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
