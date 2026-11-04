@@ -4,7 +4,12 @@ import { zipSync, strToU8 } from 'fflate';
 import { githubSource } from './source.mjs';
 
 const sha = 'a'.repeat(40), tree = 'b'.repeat(40), archiveTree = 'c'.repeat(40);
-const state = { version: 1, fingerprint: 'd'.repeat(64), teams: [], build: { identity: '5:1' }, publication: { identity: '5:1:published' } };
+const state = { version: 1, fingerprint: 'd'.repeat(64), codeSha: sha, rulesKey: 'rules', projectCount: 0, teams: [], build: { identity: '5:1' }, publication: { identity: '5:1:published' } };
+const pagesUrl = 'https://owner.github.io/hub/archives/manifest.json?build=5%3A1';
+const noArtifacts = {
+  '/actions/artifacts?name=archive-published-state-5-1&per_page=100': { artifacts: [] },
+  '/actions/artifacts?name=archive-candidate-state-5-1&per_page=100': { artifacts: [] },
+};
 const artifact = { id: 8, name: 'archive-published-state-5-1', size_in_bytes: 100, expired: false, workflow_run: { id: 5, head_branch: 'main' } };
 const run = { id: 5, head_branch: 'main', run_attempt: 1, updated_at: '2026-11-04T00:05:00Z', event: 'schedule', path: '.github/workflows/archive-auto.yml', head_repository: { full_name: 'owner/hub' } };
 const history = {
@@ -57,19 +62,42 @@ test('successful-state artifact is separate from cache and redirected downloads 
   assert.equal(result.fingerprint, state.fingerprint); assert.equal(result.publication.requiresPublish, false);
   assert.equal(m.calls.at(-1).options.headers, undefined);
 });
-test('expired or absent current evidence never falls back to an older publication', async () => {
-  const expired = mock({ ...history, '/actions/artifacts?name=archive-published-state-5-1&per_page=100': { artifacts: [{ ...artifact, expired: true }] } });
-  await assert.rejects(githubSource('owner/hub', '', expired.fetcher).publishedState(), /만료/);
-  const missing = mock({ ...history,
-    '/actions/artifacts?name=archive-published-state-5-1&per_page=100': { artifacts: [] },
-    '/actions/artifacts?name=archive-candidate-state-5-1&per_page=100': { artifacts: [] },
-  });
-  await assert.rejects(githubSource('owner/hub', '', missing.fetcher).publishedState(), /고정된 빌드 명세/);
+test('expired and deleted artifacts recover the matching published site without forwarding credentials', async () => {
+  for (const expired of [false, true]) {
+    const m = mock({ ...history, ...noArtifacts,
+      ...(expired ? { '/actions/artifacts?name=archive-published-state-5-1&per_page=100': { artifacts: [{ ...artifact, expired: true }] } } : {}),
+      [pagesUrl]: state,
+    });
+    const result = await githubSource('owner/hub', 'secret', m.fetcher).publishedState();
+    assert.equal(result.fingerprint, state.fingerprint);
+    assert.equal(result.publication.identity, '5:1:published');
+    assert.equal(result.publication.requiresPublish, false);
+    assert.equal(result.publication.recovered, true);
+    assert.equal(m.calls.at(-1).options.headers, undefined);
+    assert.equal(m.calls.at(-1).options.redirect, 'error');
+  }
+});
+
+test('site recovery rejects stale, malformed, oversized or absent state', async () => {
+  for (const page of [
+    { ...state, build: { identity: '4:1' } },
+    { ...state, projectCount: 1 },
+    { ...state, projectCount: -1 },
+    null,
+    new Response('{'),
+    { ...state, padding: ' '.repeat(1048577) },
+    new Response('', { status: 404 }),
+    new Response(null, { status: 302, headers: { location: 'https://example.com' } }),
+  ]) {
+    const m = mock({ ...history, ...noArtifacts, [pagesUrl]: page });
+    await assert.rejects(githubSource('owner/hub', '', m.fetcher).publishedState());
+  }
 });
 test('participant branch artifacts cannot impersonate a main publication', async () => {
   const m = mock({ ...history,
     '/actions/artifacts?name=archive-published-state-5-1&per_page=100': { artifacts: [{ ...artifact, workflow_run: { id: 5, head_branch: 'W01' } }] },
     '/actions/artifacts?name=archive-candidate-state-5-1&per_page=100': { artifacts: [] },
+    [pagesUrl]: new Response('', { status: 404 }),
   });
-  await assert.rejects(githubSource('owner/hub', '', m.fetcher).publishedState(), /고정된 빌드 명세/);
+  await assert.rejects(githubSource('owner/hub', '', m.fetcher).publishedState(), /사이트의 배포 기록/);
 });

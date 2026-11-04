@@ -45,7 +45,7 @@ test('new publication with failed marker upload recovers ITS immutable candidate
 });
 test('missing both records after newer success fails instead of falling back', async () => {
   const source = api({ runs: [run(1, 5), run(2, 10)], jobs: { '2:1': [job(2, 1, 9)] }, artifacts: [marker(1, 1)] });
-  await assert.rejects(currentPublication(source, 'owner/hub'), /고정된 빌드 명세/);
+  await assert.rejects(currentPublication(source, 'owner/hub', async () => new Response('', { status: 404 })), /사이트의 배포 기록/);
 });
 test('a failed Pages polling step uses its candidate conservatively and exact candidate may retry', async () => {
   const source = api({ runs: [run(2, 10)], jobs: { '2:1': [job(2, 1, 9, 'failure')] }, artifacts: [marker(2, 1, true)] });
@@ -70,5 +70,18 @@ test('publication ordering uses completion time, not creation order of run IDs',
 });
 test('unrecognized external deployment and expired candidate fail closed', async () => {
   await assert.rejects(currentPublication(api({ deployments: [{ id: 3, created_at: timestamp(3) }], statuses: { 3: [{ state: 'success', log_url: 'https://example.com' }] } }), 'owner/hub'), /연결할 수 없는/);
-  await assert.rejects(currentPublication(api({ runs: [run(1, 5)], jobs: { '1:1': [job(1, 1, 4, 'failure')] }, artifacts: [{ ...marker(1, 1, true), expired: true }] }), 'owner/hub'), /만료/);
+  await assert.rejects(currentPublication(api({ runs: [run(1, 5)], jobs: { '1:1': [job(1, 1, 4, 'failure')] }, artifacts: [{ ...marker(1, 1, true), expired: true }] }), 'owner/hub', async () => new Response('', { status: 404 })), /만료/);
+});
+
+test('expired candidate can recover the exact live build and preserves retry guards', async () => {
+  for (const conclusion of ['success', 'failure']) {
+    const source = api({ runs: [run(1, 5)], jobs: { '1:1': [job(1, 1, 4, conclusion)] }, artifacts: [{ ...marker(1, 1, true), expired: true }] });
+    const state = { version: 1, fingerprint: 'd'.repeat(64), codeSha: 'code', rulesKey: 'rules', teams: [], projectCount: 0, build: { identity: '1:1' } };
+    const current = await currentPublication(source, 'owner/hub', async () => Response.json(state));
+    assert.equal(current.artifact, null);
+    assert.equal(current.state.build.identity, '1:1');
+    assert.equal(current.success, conclusion === 'success');
+    assert.doesNotThrow(() => guardBaseline({ baselinePublication: current.identity }, current));
+    assert.throws(() => guardBaseline({ baselinePublication: '0:1:published', build: { identity: '2:1' } }, current), /다른 배포/);
+  }
 });

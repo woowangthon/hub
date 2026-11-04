@@ -7,11 +7,11 @@ import { execFileSync } from 'node:child_process';
 import sharp from 'sharp';
 import { parse as parseYaml } from 'yaml';
 import { collect, makePlan, validateState } from './collector.mjs';
-import { blobSha, localSource } from './source.mjs';
+import { blobSha, githubSource, localSource } from './source.mjs';
 import { formatIssues, parseSubmission, safeImagePath, SubmissionError, validateBranch } from './validation.mjs';
 import defaults from '../../config/archive.json' with { type: 'json' };
 
-const config = { ...defaults, templateTreeSha: null, teamNumbers: [1] };
+const config = { ...defaults, teamNumbers: [1] };
 const data = {
   teamNumber: 1, teamName: '검증팀', title: '캠퍼스 안내', summary: '학교 공지를 찾아줍니다.',
   thumbnail: 'thumbnail.png', screenshots: ['screenshots/screen.png'], problem: '공지를 찾기 어렵습니다.',
@@ -65,7 +65,8 @@ test('no submitted teams publish an empty archive and support unchanged and full
   assert.deepEqual(first.projects, []);
   assert.equal(first.manifest.projectCount, 0);
   assert.equal(first.stats.downloaded, 0);
-  assert.deepEqual(await readdir(path.join(f.outputDir, 'public/archives')), []);
+  assert.deepEqual(await readdir(path.join(f.outputDir, 'public/archives')), ['manifest.json']);
+  assert.deepEqual(JSON.parse(await readFile(path.join(f.outputDir, 'public/archives/manifest.json'), 'utf8')), JSON.parse(JSON.stringify(first.manifest)));
   assert.deepEqual(JSON.parse(await readFile(path.join(f.outputDir, 'projects.json'), 'utf8')), []);
   assert.doesNotThrow(() => validateState(first.manifest));
   assert.throws(() => validateState({ ...first.manifest, projectCount: -1 }));
@@ -162,15 +163,94 @@ test('symlink Git entries and oversized files are rejected before content downlo
   const f2 = await fixture(t);
   await assert.rejects(f2.run(await f2.plan(), { ...config, limits: { ...config.limits, imageBytes: target.length - 1 } }), SubmissionError);
 });
+async function emptySubmission(f, json = '') {
+  await writeFile(path.join(f.repo, 'archive/archive.json'), json);
+  await rm(path.join(f.repo, 'archive/thumbnail.png'));
+  await rm(path.join(f.repo, 'archive/screenshots/screen.png'));
+  await writeFile(path.join(f.repo, 'archive/screenshots/.gitkeep'), '');
+  await writeFile(path.join(f.repo, 'archive/archive.example.json'), JSON.stringify(data));
+  f.commit();
+}
+
 test('missing/template teams are excluded, previously published disappearance blocks', async t => {
   const f = await fixture(t); const first = await f.run(await f.plan());
   const extra = { ...config, teamNumbers: [1, 2] };
   const plan = await f.plan(null, { config: extra });
   const result = await f.run(plan, extra); assert.equal(result.stats.missing, 1); assert.equal(result.stats.projects, 1);
-  const template = { ...config, templateTreeSha: first.manifest.teams[0].treeSha };
-  const templatePlan = await f.plan(null, { config: template });
-  assert.equal((await f.run(templatePlan, template)).manifest.projectCount, 0);
-  await assert.rejects(f.plan(first.manifest, { config: template }), /검증/);
+  await emptySubmission(f);
+  const templatePlan = await f.plan();
+  assert.equal(templatePlan.teams[0].status, 'template');
+  assert.equal((await f.run(templatePlan)).manifest.projectCount, 0);
+  await assert.rejects(f.plan(first.manifest), /검증/);
+});
+
+test('README and example edits cannot turn an empty submission into a project or trigger a rebuild', async t => {
+  const f = await fixture(t); await emptySubmission(f);
+  const first = await f.run(await f.plan());
+  await writeFile(path.join(f.repo, 'archive/README.md'), 'Updated instructions');
+  await writeFile(path.join(f.repo, 'archive/archive.example.json'), '{new example');
+  await writeFile(path.join(f.repo, 'archive/archive.json'), ' \r\n\t'); f.commit();
+  const plan = await f.plan(first.manifest);
+  assert.equal(plan.teams[0].status, 'template');
+  assert.notEqual(plan.teams[0].treeSha, first.manifest.teams[0].treeSha);
+  assert.equal(plan.needsBuild, false);
+  assert.equal((await f.run(plan)).projects.length, 0);
+});
+
+test('partial JSON and image-only submissions still fail instead of being silently skipped', async t => {
+  const f = await fixture(t); await emptySubmission(f);
+  for (const json of ['{', '{}', 'null', JSON.stringify(data)]) {
+    await writeFile(path.join(f.repo, 'archive/archive.json'), json); f.commit();
+    const plan = await f.plan(); assert.equal(plan.teams[0].status, 'submitted');
+    await assert.rejects(f.run(plan), SubmissionError);
+  }
+  await writeFile(path.join(f.repo, 'archive/archive.json'), '');
+  await writeFile(path.join(f.repo, 'archive/thumbnail.png'), await f.image('red')); f.commit();
+  assert.equal((await f.plan()).teams[0].status, 'submitted');
+  await assert.rejects(f.run(await f.plan()), SubmissionError);
+  await rm(path.join(f.repo, 'archive/archive.json')); f.commit();
+  await assert.rejects(f.run(await f.plan()), error => error.issues.some(i => i.message.includes('archive.json이 없습니다')));
+});
+
+test('blank submissions cannot bypass invalid metadata, limits, UTF-8 or blob integrity', async t => {
+  const f = await fixture(t); await emptySubmission(f, ' ');
+  const raw = localSource(f.repo);
+  await assert.rejects(f.plan(null, { source: { ...raw, blob: async () => Buffer.from('x') } }), /검증/);
+  const files = await raw.files(await raw.snapshot('W01'));
+  for (const patch of [{ mode: '120000' }, { size: config.limits.jsonBytes + 1 }, { size: -1 }]) {
+    await assert.rejects(f.plan(null, { source: { ...raw, files: async () => files.map(e => e.path === 'archive.json' ? { ...e, ...patch } : e) } }), /검증/);
+  }
+  await writeFile(path.join(f.repo, 'archive/archive.json'), Buffer.from([255])); f.commit();
+  await assert.rejects(f.run(await f.plan()), SubmissionError);
+});
+
+test('after artifact expiry site state supports unchanged, incremental, full and disappearance checks', async t => {
+  const f = await fixture(t);
+  const plan = await f.plan(); plan.build = { identity: '5:1', runId: 5, attempt: 1 };
+  await f.run(plan);
+  const liveState = await readFile(path.join(f.outputDir, 'public/archives/manifest.json'), 'utf8');
+  const replies = {
+    '/actions/runs?branch=main&per_page=100&page=1': { workflow_runs: [{ id: 5, run_attempt: 1, updated_at: '2026-07-01T00:02:00Z', head_branch: 'main', event: 'schedule', path: '.github/workflows/archive-auto.yml', head_repository: { full_name: 'owner/hub' } }] },
+    '/actions/runs/5/attempts/1/jobs?per_page=100&page=1': { jobs: [{ name: 'Publish Archive (build 5:1)', steps: [{ name: 'Deploy Archive Pages', conclusion: 'success', started_at: '2026-07-01T00:01:00Z', completed_at: '2026-07-01T00:02:00Z' }] }] },
+    '/deployments?environment=github-pages&per_page=100&page=1': [],
+    '/actions/artifacts?name=archive-published-state-5-1&per_page=100': { artifacts: [] },
+    '/actions/artifacts?name=archive-candidate-state-5-1&per_page=100': { artifacts: [] },
+  };
+  const remote = githubSource('owner/hub', 'token', async (url, options) => {
+    if (url === 'https://owner.github.io/hub/archives/manifest.json?build=5%3A1') {
+      assert.equal(options.headers, undefined); return new Response(liveState);
+    }
+    const key = url.replace('https://api.github.com/repos/owner/hub', '');
+    assert(Object.hasOwn(replies, key), key); return Response.json(replies[key]);
+  });
+  const previous = await remote.publishedState();
+  assert.equal((await f.plan(previous)).needsBuild, false);
+  await f.update({ ...data, summary: '90일 이후 수정' }); f.commit();
+  const incremental = await f.run(await f.plan(previous));
+  assert.deepEqual(incremental.stats, { downloaded: 1, reused: 2, decoded: 0, projects: 1, missing: 0 });
+  assert.equal((await f.run(await f.plan(previous, { full: true }))).stats.downloaded, 3);
+  await emptySubmission(f);
+  await assert.rejects(f.plan(previous), SubmissionError);
 });
 test('same filenames across teams cannot collide and team identity is stable', async t => {
   const f = await fixture(t); f.git('checkout', '-b', 'W02');

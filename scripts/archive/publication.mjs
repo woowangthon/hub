@@ -1,3 +1,19 @@
+import { readLimited } from './github.mjs';
+const shaPattern = /^[a-f0-9]{40}$/;
+
+export function validateState(state) {
+  if (state === null) return;
+  if (state?.version !== 1 || !/^[a-f0-9]{64}$/.test(state.fingerprint ?? '') || !Array.isArray(state.teams)
+    || typeof state.codeSha !== 'string' || !state.codeSha || typeof state.rulesKey !== 'string' || !state.rulesKey
+    || !Number.isSafeInteger(state.projectCount) || state.projectCount < 0
+    || state.teams.some(t => !/^W(?:0[1-9]|[1-9][0-9])$/.test(t.branch) || !['submitted', 'missing', 'template'].includes(t.status)
+      || (t.status !== 'missing' && (!shaPattern.test(t.commitSha ?? '') || !shaPattern.test(t.treeSha ?? ''))))
+    || new Set(state.teams.map(t => t.branch)).size !== state.teams.length
+    || state.teams.filter(t => t.status === 'submitted').length !== state.projectCount) {
+    throw new Error('이전 배포 명세가 올바르지 않습니다. 복구 후 다시 실행해 주세요.');
+  }
+}
+
 // These names are an audit contract: changing the workflow step requires a history migration.
 export const publishStepName = 'Deploy Archive Pages';
 const publishStepNames = new Set([publishStepName, '사이트 게시']);
@@ -8,7 +24,22 @@ const date = value => {
   return result;
 };
 
-export async function currentPublication(api, repository) {
+async function readPublishedManifest(repository, latest, fetcher) {
+  if (!/^[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+$/.test(repository)) throw new Error('게시 저장소 식별값이 올바르지 않습니다.');
+  const [owner, name] = repository.split('/');
+  const base = `https://${owner.toLowerCase()}.github.io/${name.toLowerCase() === `${owner.toLowerCase()}.github.io` ? '' : `${name}/`}`;
+  const url = new URL('archives/manifest.json', base);
+  url.searchParams.set('build', latest.buildIdentity);
+  // Fixed repository Pages origin; never send a GitHub token or follow redirects.
+  const response = await fetcher(url.href, { redirect: 'error', cache: 'no-store', signal: AbortSignal.timeout(30000) });
+  if (!response.ok) throw new Error('Actions 배포 기록이 없거나 만료되었으며 사이트의 배포 기록도 읽을 수 없습니다. 기록을 포함한 배포 여부를 확인해 주세요.');
+  const state = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(await readLimited(response, 1048576)));
+  validateState(state);
+  if (state?.build?.identity !== latest.buildIdentity) throw new Error('사이트의 배포 기록이 최신 GitHub 배포와 다릅니다. 이전 기록으로 진행하지 않습니다.');
+  return state;
+}
+
+export async function currentPublication(api, repository, fetcher = fetch) {
   const runs = (await api.list('/actions/runs?branch=main', 'workflow_runs')).filter(run =>
     ['schedule', 'workflow_dispatch'].includes(run.event) && run.head_branch === 'main'
     && paths.includes(run.path?.split('@')[0]) && run.head_repository?.full_name === repository);
@@ -54,14 +85,15 @@ export async function currentPublication(api, repository) {
     return result.artifacts.find(a => a.name === name && a.workflow_run?.id === latest.runId && a.workflow_run?.head_branch === 'main');
   }
   let artifact = latest.success ? await find(`archive-published-state-${latest.runId}-${latest.attempt}`) : null;
+  if (artifact?.expired) artifact = null;
   const recovered = !artifact;
   if (!artifact) artifact = await find(latest.candidateName);
-  if (!artifact) throw new Error('최근 게시 시도의 성공 명세와 고정된 빌드 명세가 없습니다. 이전 명세로 진행하지 않고 복구를 기다립니다.');
-  if (artifact.expired) throw new Error('마지막 배포 명세가 만료되었습니다. 보관한 성공 명세로 복구한 뒤 다시 실행해 주세요.');
-  if (artifact.size_in_bytes > 1048576) throw new Error('배포 명세 artifact 크기가 비정상입니다.');
+  if (artifact?.expired) artifact = null;
+  const state = artifact ? null : await readPublishedManifest(repository, latest, fetcher);
+  if (artifact && artifact.size_in_bytes > 1048576) throw new Error('배포 명세 artifact 크기가 비정상입니다.');
   // A failed polling step can still have published. Its validated candidate is the
   // conservative baseline: protect its teams and force publication, never skip it.
-  return { ...latest, identity: `${latest.identity}:${latest.success ? 'published' : 'uncertain'}`, recovered, artifact };
+  return { ...latest, identity: `${latest.identity}:${latest.success ? 'published' : 'uncertain'}`, recovered, artifact, state };
 }
 
 export function guardBaseline(candidate, publication) {

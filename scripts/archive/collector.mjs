@@ -1,5 +1,7 @@
 import { mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { validateState } from './publication.mjs';
+export { validateState } from './publication.mjs';
 import { blobSha, digest } from './source.mjs';
 import { branchFor, fail, issue, parseSubmission, shaPattern, SubmissionError, validateImage } from './validation.mjs';
 
@@ -7,23 +9,31 @@ export function validateConfig(config) {
   const numbers = config.teamNumbers;
   if (!Array.isArray(numbers) || !numbers.length || numbers.some(n => !Number.isInteger(n) || n < 1 || n > 99)
     || new Set(numbers).size !== numbers.length) throw new Error('config/archive.json의 teamNumbers에 실제 참가 팀 번호를 중복 없이 등록해 주세요.');
-  if (config.templateTreeSha !== null && !shaPattern.test(config.templateTreeSha ?? '')) throw new Error('templateTreeSha는 제출 예시 archive 폴더의 Git tree SHA여야 합니다.');
   for (const key of ['jsonBytes', 'imageBytes', 'imagePixels', 'teamBytes', 'totalBytes']) {
     if (!Number.isSafeInteger(config.limits?.[key]) || config.limits[key] <= 0) throw new Error(`잘못된 크기 제한: ${key}`);
   }
 }
 
-export function validateState(state) {
-  if (state === null) return;
-  if (state?.version !== 1 || !/^[a-f0-9]{64}$/.test(state.fingerprint ?? '') || !Array.isArray(state.teams)
-    || typeof state.codeSha !== 'string' || !state.codeSha || typeof state.rulesKey !== 'string' || !state.rulesKey
-    || !Number.isSafeInteger(state.projectCount) || state.projectCount < 0
-    || state.teams.some(t => !/^W(?:0[1-9]|[1-9][0-9])$/.test(t.branch) || !['submitted', 'missing', 'template'].includes(t.status)
-      || (t.status !== 'missing' && (!shaPattern.test(t.commitSha ?? '') || !shaPattern.test(t.treeSha ?? ''))))
-    || new Set(state.teams.map(t => t.branch)).size !== state.teams.length
-    || state.teams.filter(t => t.status === 'submitted').length !== state.projectCount) {
-    throw new Error('이전 배포 명세가 올바르지 않습니다. 복구 후 다시 실행해 주세요.');
-  }
+// Only these non-submission files may accompany an untouched blank JSON.
+const templateSupportFiles = new Set(['README.md', 'archive.example.json', 'screenshots/.gitkeep']);
+export async function submissionStatus(source, snapshot, config) {
+  const { branch } = snapshot;
+  if (!snapshot.commitSha) return 'missing';
+  if (!snapshot.treeSha) fail(branch, 'archive/', 'archive 폴더가 없습니다. archive/archive.json과 이미지를 추가해 주세요.');
+  const files = await source.files(snapshot);
+  const json = files.find(f => f.path === 'archive.json');
+  // Partial submissions and unsupported extra files must undergo normal validation.
+  if (!json || files.some(f => f.path !== 'archive.json' && !templateSupportFiles.has(f.path))) return 'submitted';
+  if (files.some(f => f.mode !== '100644' || f.type !== 'blob' || !shaPattern.test(f.sha)
+    || !Number.isSafeInteger(f.size) || f.size < 0)) fail(branch, 'archive/', '일반 파일과 올바른 Git 파일 정보만 허용합니다. 링크나 실행 파일을 제거해 주세요.');
+  if (files.reduce((sum, f) => sum + f.size, 0) > config.limits.teamBytes) fail(branch, 'archive/', `팀 자료는 ${config.limits.teamBytes / 1048576}MiB 이하여야 합니다.`);
+  if (json.size > config.limits.jsonBytes) fail(branch, 'archive/archive.json', `JSON은 ${config.limits.jsonBytes}바이트 이하여야 합니다.`);
+  // A zero-byte Git blob is identifiable without another download.
+  if (json.size === 0 && json.sha === blobSha(Buffer.alloc(0))) return 'template';
+  const bytes = await source.blob(json.sha);
+  if (bytes.length !== json.size || blobSha(bytes) !== json.sha) fail(branch, 'archive/archive.json', '파일 내용이 Git 식별값과 다릅니다. 다시 실행해 주세요.');
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(bytes).trim() === '' ? 'template' : 'submitted'; }
+  catch { return 'submitted'; }
 }
 
 export async function makePlan({ source, config, codeSha, rulesKey, workflowSha = 'local', previous = null, full = false }) {
@@ -34,8 +44,7 @@ export async function makePlan({ source, config, codeSha, rulesKey, workflowSha 
     const branch = branchFor(number);
     try {
       const snapshot = await source.snapshot(branch);
-      const status = !snapshot.commitSha ? 'missing' : snapshot.treeSha === config.templateTreeSha && snapshot.treeSha ? 'template' : 'submitted';
-      if (status === 'submitted' && !snapshot.treeSha) fail(branch, 'archive/', 'archive 폴더가 없습니다. archive/archive.json과 이미지를 추가해 주세요.');
+      const status = await submissionStatus(source, snapshot, config);
       if (status !== 'submitted' && previous?.teams.some(t => t.branch === branch && t.status === 'submitted')) {
         fail(branch, 'archive/', '이전에 공개된 제출 자료가 사라졌습니다. 의도한 삭제는 운영진이 팀 등록 설정에서 처리해 주세요.');
       }
@@ -45,7 +54,7 @@ export async function makePlan({ source, config, codeSha, rulesKey, workflowSha 
     }
   }
   if (errors.length) throw new SubmissionError(errors);
-  const fingerprint = digest({ codeSha, rulesKey, workflowSha, config, teams: teams.map(({ branch, treeSha, status }) => ({ branch, treeSha, status })) });
+  const fingerprint = digest({ codeSha, rulesKey, workflowSha, config, teams: teams.map(({ branch, treeSha, status }) => ({ branch, treeSha: status === 'submitted' ? treeSha : null, status })) });
   return { version: 1, codeSha, rulesKey, workflowSha, fingerprint, teams, full,
     baselinePublication: previous?.publication?.identity ?? null,
     needsBuild: full || previous?.publication?.requiresPublish === true || previous?.fingerprint !== fingerprint };
@@ -137,8 +146,12 @@ export async function collect({ source, plan, config, cacheDir, outputDir }) {
   const manifest = { version: 1, fingerprint: plan.fingerprint, codeSha: plan.codeSha, rulesKey: plan.rulesKey, workflowSha: plan.workflowSha,
     baselinePublication: plan.baselinePublication ?? null, build: plan.build,
     teams: plan.teams, projectCount: published.length };
+  const manifestText = JSON.stringify(manifest, null, 2);
+  if (Buffer.byteLength(manifestText) > 1048576) throw new Error('배포 기록은 1MiB 이하여야 합니다.');
   await mkdir(outputDir, { recursive: true });
   await writeFile(path.join(outputDir, 'projects.json'), JSON.stringify(published, null, 2));
-  await writeFile(path.join(outputDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
+  await writeFile(path.join(outputDir, 'manifest.json'), manifestText);
+  // Published alongside the site, independently of Actions artifact retention.
+  await writeFile(path.join(outputDir, 'public', 'archives', 'manifest.json'), manifestText);
   return { stats, manifest, projects: published };
 }

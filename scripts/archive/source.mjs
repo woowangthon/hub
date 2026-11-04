@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { unzipSync } from 'fflate';
 import { fail, shaPattern, validateBranch } from './validation.mjs';
 import { githubClient, readLimited } from './github.mjs';
-import { currentPublication } from './publication.mjs';
+import { currentPublication, validateState } from './publication.mjs';
 
 export const blobSha = bytes => createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
 export const digest = value => createHash('sha256').update(typeof value === 'string' ? value : JSON.stringify(value)).digest('hex');
@@ -60,9 +60,10 @@ export function githubSource(repository, token, fetcher = fetch) {
       return Buffer.from(result.content, 'base64');
     },
     async publishedState() {
-      const publication = await currentPublication(api, repository);
+      const publication = await currentPublication(api, repository, fetcher);
       if (!publication) return null;
       const { artifact } = publication;
+      if (!artifact) return { ...publication.state, publication: { identity: publication.identity, requiresPublish: !publication.success, recovered: true } };
       const response = await request(`/actions/artifacts/${artifact.id}/zip`);
       const location = response.headers.get('location');
       if (response.status !== 302 || !location || new URL(location).protocol !== 'https:') throw new Error('배포 명세 다운로드 주소를 확인할 수 없습니다.');
@@ -73,6 +74,7 @@ export function githubSource(repository, token, fetcher = fetch) {
       const files = unzipSync(bytes, { filter: f => f.name === 'manifest.json' && f.originalSize <= 1048576 });
       if (!files['manifest.json']) throw new Error('배포 명세 manifest.json이 없습니다.');
       const state = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(files['manifest.json']));
+      validateState(state);
       if (state.build?.identity !== publication.buildIdentity) throw new Error('빌드 명세와 실제 게시 실행이 일치하지 않습니다.');
       if (!publication.recovered && state.publication?.identity !== publication.identity) throw new Error('성공 명세와 실제 게시 실행이 일치하지 않습니다.');
       state.publication = { identity: publication.identity, requiresPublish: !publication.success, recovered: publication.recovered };

@@ -3,7 +3,7 @@ import { cp, mkdir, readFile, rm, writeFile, appendFile } from 'node:fs/promises
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { pathToFileURL } from 'node:url';
-import { collect, makePlan, validateConfig } from './archive/collector.mjs';
+import { collect, makePlan, submissionStatus, validateConfig } from './archive/collector.mjs';
 import { digest, githubSource, localSource } from './archive/source.mjs';
 import { branchFor, fail, formatIssues, SubmissionError, validateBranch } from './archive/validation.mjs';
 
@@ -49,7 +49,7 @@ export async function main(args = process.argv.slice(2)) {
     await output('build_attempt', process.env.GITHUB_RUN_ATTEMPT ?? 'local');
     await output('pages_artifact', `github-pages-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`);
     await output('candidate_artifact', `archive-candidate-state-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`);
-    if (previous?.publication?.recovered) await summary('최근 게시 시도의 고정 빌드 명세로 상태를 복구했습니다. 불확실한 게시 시도는 변경이 없어도 재게시합니다.');
+    if (previous?.publication?.recovered) await summary('최근 게시 시도와 일치하는 빌드 또는 사이트 배포 기록으로 상태를 복구했습니다. 불확실한 게시 시도는 변경이 없어도 재게시합니다.');
     await summary(plan.needsBuild ? `자료 수집 예정: ${plan.teams.filter(t => t.status === 'submitted').length}개 팀 · ${plan.full ? '전체 재수집' : '캐시 재사용'}` : '제출 자료·코드·설정 변경 없음: 빌드와 배포를 생략합니다.');
     return;
   }
@@ -60,7 +60,7 @@ export async function main(args = process.argv.slice(2)) {
     if (!config.teamNumbers.map(branchFor).includes(branch)) fail(branch, 'branch', '등록되지 않은 팀입니다. 운영진에게 팀 번호 등록을 요청해 주세요.');
     const snapshot = await source.snapshot(branch, values.sha);
     if (!snapshot.treeSha) fail(branch, 'archive/', 'archive 폴더가 없습니다. 제출 예시의 폴더 구조를 확인해 주세요.');
-    if (snapshot.treeSha === config.templateTreeSha) fail(branch, 'archive/', '제출 예시가 그대로입니다. JSON과 이미지를 실제 프로젝트 자료로 교체해 주세요.');
+    if (await submissionStatus(source, snapshot, config) === 'template') fail(branch, 'archive/archive.json', '아직 제출 내용이 없습니다. JSON과 프로젝트 이미지를 작성해 주세요.');
     plan = { codeSha, rulesKey: key, fingerprint: digest(snapshot), full: true, teams: [{ ...snapshot, status: 'submitted' }] };
   } else {
     plan = JSON.parse(await readFile(path.join(stateDir, 'plan.json'), 'utf8'));
