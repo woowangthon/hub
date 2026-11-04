@@ -1,0 +1,26 @@
+node_modules/
+dist/
+coverage/
+.idea/
+*.local
+.DS_Store
+
+# Local design records, prototypes and verification captures are not published.
+.local/
+.scratch/
+docs/
+AGENTS.md
+design-qa.md
+scripts/*
+!scripts/archive.mjs
+!scripts/archive/
+.archive/
+public/archives/
+public/archive-manifest.json
+output/
+.playwright-cli/
+.playwright-mcp/
+*.log
+*.tsbuildinfo
+.env
+.env.*

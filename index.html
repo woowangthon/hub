@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1c1c1c" />
+    <meta name="description" content="AI 우왕톤의 팀과 프로젝트를 만나는 아카이빙 공간입니다." />
+    <title>WOOWANGTHON</title>
+    <style>
+      html,body{margin:0;background:#1c1c1c;color:#f5efe9}
+      #startup{padding:2rem;font:1rem/1.7 sans-serif;max-width:45rem}#startup a{color:inherit}
+      html[data-app-state="loading"] #startup,html[data-app-state="ready"] #startup{display:none}
+      html:not([data-app-state]) #root,html[data-app-state="failed"] #root{display:none}
+    </style>
+    <script>
+      // Before first paint: keep fallback text out of the normal loading path.
+      document.documentElement.dataset.appState = 'loading';
+      window.addEventListener('error', (event) => {
+        if (document.documentElement.dataset.appState === 'loading' ||
+            (event.target instanceof HTMLScriptElement && event.target.type === 'module')) {
+          document.documentElement.dataset.appState = 'failed';
+        }
+      }, true);
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <main id="startup" aria-labelledby="startup-title">
+      <h1 id="startup-title">AI 우왕톤</h1>
+      <p>페이지를 표시할 수 없습니다. JavaScript 설정과 네트워크 연결을 확인한 후 새로고침해 주세요.</p>
+      <p><a href="">새로고침</a> · <a href="mailto:chungbuk.univ@likelion.org">운영 문의</a></p>
+      <p>주관: 교육부 · 한국산업기술진흥원(KIAT) · AI부트캠프사업단</p>
+      <p>주최: AI부트캠프사업단 · 충북대 멋쟁이사자처럼</p>
+      <p>후원: Notion</p>
+    </main>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

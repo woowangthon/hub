@@ -1,0 +1,170 @@
+name: 전시회 자동 배포
+
+on:
+  push:
+    branches: ['W*']
+  schedule:
+    - cron: '10 15 * * *' # 매일 한국 시간 00:10
+  workflow_call:
+    inputs:
+      full_rebuild:
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# The manual caller must not also acquire this lock.
+concurrency:
+  group: ${{ github.event_name == 'push' && format('archive-check-{0}', github.ref) || 'archive-pages' }}
+  cancel-in-progress: ${{ github.event_name == 'push' }}
+
+jobs:
+  validate:
+    name: 제출 JSON·이미지 검사
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: archive-page
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '24'
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+      - run: pnpm install --frozen-lockfile
+      - name: 푸시한 커밋 검사
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SUBMISSION_BRANCH: ${{ github.ref_name }}
+          SUBMISSION_SHA: ${{ github.sha }}
+        run: node scripts/archive.mjs validate --branch "$SUBMISSION_BRANCH" --sha "$SUBMISSION_SHA"
+
+  build:
+    name: 변경 확인·수집·빌드
+    if: github.event_name != 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      actions: read
+      deployments: read
+    outputs:
+      needs_build: ${{ steps.plan.outputs.needs_build }}
+      code_sha: ${{ steps.plan.outputs.code_sha }}
+      build_attempt: ${{ steps.plan.outputs.build_attempt }}
+      pages_artifact: ${{ steps.plan.outputs.pages_artifact }}
+      candidate_artifact: ${{ steps.plan.outputs.candidate_artifact }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: archive-page
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '24'
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+      - run: pnpm install --frozen-lockfile
+      - name: 마지막 성공 배포와 비교·커밋 고정
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          FULL_REBUILD: ${{ inputs.full_rebuild || false }}
+        run: |
+          if [ "$FULL_REBUILD" = "true" ]; then
+            node scripts/archive.mjs plan --full
+          else
+            node scripts/archive.mjs plan
+          fi
+      - name: 검증 자료 캐시 복원
+        if: steps.plan.outputs.needs_build == 'true' && !inputs.full_rebuild
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: .archive/cache
+          key: archive-data-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: archive-data-v1-
+      - name: 변경 자료 수집·검증
+        if: steps.plan.outputs.needs_build == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: node scripts/archive.mjs collect
+      - name: 회귀 테스트
+        if: steps.plan.outputs.needs_build == 'true'
+        run: pnpm test
+      - name: 실제 제출 자료로 타입 검사·빌드
+        if: steps.plan.outputs.needs_build == 'true'
+        run: pnpm build:archive
+      - name: 다음 실행용 캐시 저장
+        if: steps.plan.outputs.needs_build == 'true'
+        continue-on-error: true
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: .archive/cache
+          key: archive-data-v1-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: 배포 후보 명세 보관
+        if: steps.plan.outputs.needs_build == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: ${{ steps.plan.outputs.candidate_artifact }}
+          path: .archive/generated/manifest.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 90
+      - name: 사이트 artifact 업로드
+        if: steps.plan.outputs.needs_build == 'true'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
+        with:
+          path: dist
+          name: ${{ steps.plan.outputs.pages_artifact }}
+
+  deploy:
+    name: Pages 게시·성공 명세 저장 (build ${{ github.run_id }}:${{ needs.build.outputs.build_attempt }})
+    needs: build
+    if: needs.build.outputs.needs_build == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+      deployments: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 검증한 빌드의 게시 검사 코드 가져오기
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.build.outputs.code_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '24'
+      - name: 후보 명세 가져오기
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: ${{ needs.build.outputs.candidate_artifact }}
+          path: state
+      - name: 최신 게시 상태와 후보 기준 재확인
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: node scripts/archive/guard.mjs
+      - name: 사이트 게시
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
+        with:
+          artifact_name: ${{ needs.build.outputs.pages_artifact }}
+      - name: 성공한 배포의 기준 명세 저장
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: archive-published-state-${{ github.run_id }}-${{ github.run_attempt }}
+          path: state/manifest.json
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,41 @@
+:root {
+  --gallery-card: #232323;
+  --gallery-border: #3b3836;
+  --gallery-input: #77716c;
+  --gallery-surface: #272727;
+  --gallery-accent: #2b2623;
+  --gallery-accent-border: #b8815b;
+  --gallery-ring: #ffa462;
+  --gallery-muted-foreground: #dbd5d0;
+}
+.ui-button { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; gap: 8px; border: 1px solid transparent; border-radius: 5px; color: var(--foreground); text-decoration: none; background: transparent; transition: background-color 160ms ease, border-color 160ms ease; }
+.ui-button-default { min-height: 44px; padding: 8px 16px; }
+.ui-button-icon { width: 44px; height: 44px; padding: 0; }
+.ui-button-outline { background: var(--gallery-card); border-color: var(--gallery-border); }
+.ui-button:focus-visible { outline: 2px solid var(--gallery-ring); outline-offset: 3px; }
+.ui-button:disabled { pointer-events: none; opacity: .5; }
+.ui-button:active:not(:disabled) { background: var(--gallery-accent); border-color: var(--gallery-accent-border); }
+.ui-icon { display: inline-block; flex: none; background-color: currentColor; mask-size: contain; mask-position: center; mask-repeat: no-repeat; }
+.ui-input-group { position: relative; display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 44px; padding-inline: 12px; border: 1px solid var(--gallery-input); border-radius: 5px; background: var(--gallery-surface); }
+.ui-input-group:focus-within { outline: none; border: 2px solid var(--gallery-ring); padding-inline: 11px; }
+.ui-input-group:focus-within .ui-input { height: 40px; }
+.ui-input-addon { display: flex; flex: none; order: -1; align-items: center; cursor: text; }
+.ui-input { flex: 1; width: 100%; min-width: 0; height: 42px; padding: 0; border: 0; background: transparent; color: var(--foreground); font: inherit; font-size: .8125rem; }
+.ui-input:focus { outline: none; }
+.ui-input::placeholder { color: var(--gallery-muted-foreground); opacity: 1; }
+.ui-card { display: flex; flex-direction: column; min-width: 0; border-radius: 8px; background: var(--gallery-card); box-shadow: inset 0 0 0 1px var(--gallery-border); }
+.ui-card-header { display: grid; gap: 6px; padding: 12px 16px 0; }
+.ui-card-footer { padding: 6px 16px 12px; }
+.ui-tooltip { z-index: 100; max-width: min(280px, calc(100vw - 32px)); border-radius: 5px; padding: 6px 12px; background: var(--foreground); color: var(--background); font-size: .8125rem; line-height: 1.5; }
+@media (hover: hover) and (pointer: fine) { .ui-button:hover { background: var(--gallery-accent); border-color: var(--gallery-accent-border); } }
+@media (prefers-reduced-motion: reduce) { .ui-button { transition: none; } }
+@supports (corner-shape: squircle) {
+  .ui-button, .ui-input-group, .ui-card, .ui-tooltip { corner-shape: squircle; }
+}
+@media (forced-colors: active) {
+  .ui-icon { color: ButtonText; forced-color-adjust: none; }
+  a .ui-icon { color: LinkText; }
+  .ui-button, .ui-input-group, .ui-card { border: 1px solid ButtonText; }
+  .ui-button:focus-visible { outline-color: Highlight; }
+  .ui-input-group:focus-within { border-color: Highlight; }
+}

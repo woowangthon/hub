@@ -1,0 +1,19 @@
+name: 전시회 전체 재배포
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  rebuild:
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      actions: read
+      deployments: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/archive-auto.yml
+    with:
+      full_rebuild: true
