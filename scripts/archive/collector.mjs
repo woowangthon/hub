@@ -17,7 +17,7 @@ export function validateState(state) {
   if (state === null) return;
   if (state?.version !== 1 || !/^[a-f0-9]{64}$/.test(state.fingerprint ?? '') || !Array.isArray(state.teams)
     || typeof state.codeSha !== 'string' || !state.codeSha || typeof state.rulesKey !== 'string' || !state.rulesKey
-    || !Number.isSafeInteger(state.projectCount) || state.projectCount < 1
+    || !Number.isSafeInteger(state.projectCount) || state.projectCount < 0
     || state.teams.some(t => !/^W(?:0[1-9]|[1-9][0-9])$/.test(t.branch) || !['submitted', 'missing', 'template'].includes(t.status)
       || (t.status !== 'missing' && (!shaPattern.test(t.commitSha ?? '') || !shaPattern.test(t.treeSha ?? ''))))
     || new Set(state.teams.map(t => t.branch)).size !== state.teams.length
@@ -113,13 +113,13 @@ export async function collect({ source, plan, config, cacheDir, outputDir }) {
       projects.push({ team, data, media });
     } catch (error) { if (error instanceof SubmissionError) errors.push(...error.issues); else throw error; }
   }
-  if (!projects.length && !errors.length) errors.push(issue('전체', 'archive/', '유효한 제출 작품이 없습니다. 미제출 예시를 수정한 뒤 다시 실행해 주세요.'));
   if (errors.length) throw new SubmissionError(errors);
   // Bound the saved cache to the current publication; old revisions must not accumulate forever.
   for (const file of await readdir(cacheDir)) {
     if (/^(?:[a-f0-9]{40}\.blob|[a-f0-9]{64}\.valid)$/.test(file) && !usedCache.has(file)) await unlink(path.join(cacheDir, file));
   }
   const published = [];
+  await mkdir(path.join(outputDir, 'public', 'archives'), { recursive: true });
   for (const { team, data, media } of projects) {
     const id = `team-${team.branch.slice(1)}`;
     const urls = new Map();

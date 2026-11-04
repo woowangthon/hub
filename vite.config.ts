@@ -13,7 +13,7 @@ export default defineConfig({
       if (id !== '\0archive-projects') return;
       if (process.env.ARCHIVE_DATA !== 'collected') return 'export const projects = [];';
       const data: unknown = JSON.parse(readFileSync(generated, 'utf8'));
-      if (!Array.isArray(data) || data.length === 0) throw new Error('수집한 작품 데이터가 없습니다. archive 수집을 먼저 실행하세요.');
+      if (!Array.isArray(data)) throw new Error('수집 데이터 형식이 올바르지 않습니다. archive 수집을 다시 실행하세요.');
       return `export const projects = ${JSON.stringify(data)};`;
     },
   }],

@@ -1,12 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, readFile, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import sharp from 'sharp';
 import { parse as parseYaml } from 'yaml';
-import { collect, makePlan } from './collector.mjs';
+import { collect, makePlan, validateState } from './collector.mjs';
 import { blobSha, localSource } from './source.mjs';
 import { formatIssues, parseSubmission, safeImagePath, SubmissionError, validateBranch } from './validation.mjs';
 import defaults from '../../config/archive.json' with { type: 'json' };
@@ -56,6 +56,27 @@ test('unchanged input and unrelated README commit skip deployment', async t => {
   const unrelated = await f.plan(first.manifest);
   assert.notEqual(unrelated.teams[0].commitSha, first.manifest.teams[0].commitSha);
   assert.equal(unrelated.needsBuild, false);
+});
+
+test('no submitted teams publish an empty archive and support unchanged and full retries', async t => {
+  const f = await fixture(t);
+  f.git('branch', '-m', 'main');
+  const first = await f.run(await f.plan());
+  assert.deepEqual(first.projects, []);
+  assert.equal(first.manifest.projectCount, 0);
+  assert.equal(first.stats.downloaded, 0);
+  assert.deepEqual(await readdir(path.join(f.outputDir, 'public/archives')), []);
+  assert.deepEqual(JSON.parse(await readFile(path.join(f.outputDir, 'projects.json'), 'utf8')), []);
+  assert.doesNotThrow(() => validateState(first.manifest));
+  assert.throws(() => validateState({ ...first.manifest, projectCount: -1 }));
+  assert.equal((await f.plan(first.manifest)).needsBuild, false);
+  const full = await f.plan(first.manifest, { full: true });
+  assert.equal(full.needsBuild, true);
+  assert.equal((await f.run(full)).manifest.projectCount, 0);
+  f.git('branch', 'W01');
+  const submitted = await f.plan(first.manifest);
+  assert.equal(submitted.needsBuild, true);
+  assert.equal((await f.run(submitted)).manifest.projectCount, 1);
 });
 test('JSON-only update downloads one file, reuses both images without decoding', async t => {
   const f = await fixture(t); const first = await f.run(await f.plan());
@@ -148,7 +169,7 @@ test('missing/template teams are excluded, previously published disappearance bl
   const result = await f.run(plan, extra); assert.equal(result.stats.missing, 1); assert.equal(result.stats.projects, 1);
   const template = { ...config, templateTreeSha: first.manifest.teams[0].treeSha };
   const templatePlan = await f.plan(null, { config: template });
-  await assert.rejects(f.run(templatePlan, template), /검증/);
+  assert.equal((await f.run(templatePlan, template)).manifest.projectCount, 0);
   await assert.rejects(f.plan(first.manifest, { config: template }), /검증/);
 });
 test('same filenames across teams cannot collide and team identity is stable', async t => {
