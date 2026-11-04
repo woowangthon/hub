@@ -25,6 +25,9 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
 .experience { height: 100svh; overflow-y: auto; overflow-x: hidden; scroll-snap-type: y mandatory; scrollbar-width: none; overscroll-behavior-y: contain; }
 .experience::-webkit-scrollbar { display: none; }
 .experience:focus-visible { outline-offset: -4px; }
+/* Temporary focus during entry must not frame the entire viewport. */
+.experience[data-transitioning=true]:focus,
+.experience[data-scene=exhibition]:focus { outline: none; }
 .runway { position: relative; height: 400svh; }
 .snap-marker { position: absolute; height: 100svh; width: 1px; pointer-events: none; scroll-snap-align: start; scroll-snap-stop: always; }
 .viewport { position: sticky; top: 0; height: 100svh; overflow: hidden; isolation: isolate; }
