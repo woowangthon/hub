@@ -1,0 +1,53 @@
+{
+  "teamNumber": 7,
+  "teamName": "이음(IEUM)",
+  "title": " 마중: 실시간 엘리베이터 데이터 기반 교통약자 지하철 이동 도우미",
+  "summary": "지하철 엘리베이터 운행 정보와 출발 시각 안내로 교통약자의 이동을 돕는 접근성 중심 웹 서비스",
+  "problem": "휠체어 이용자와 고령자 등 계단 이용이 어려운 승객은 지하철역 엘리베이터의 고장이나 일부 운행으로 계획한 경로를 이용하지 못할 수 있습니다. 역별 설비 상태와 이동 계획을 따로 확인해야 하는 불편을 줄이고, 이동 전에 필요한 정보를 한곳에서 확인할 수 있도록 돕고자 합니다.",
+  "targetUsers": [
+    "휠체어 등 이동 보조기구를 이용하는 지하철 승객",
+    "고령자 및 계단 이용이 어려운 승객",
+    "엘리베이터 운행 상태를 미리 확인하려는 지하철 이용자"
+  ],
+  "features": [
+    "지하철 노선도와 역별 엘리베이터 운행 상태 조회",
+    "정상·일부 운행·이용 불가 현황 요약 및 노선별 필터",
+    "출발역·도착역과 희망 도착 시각을 바탕으로 한 출발 시각 계산",
+    "엘리베이터 관련 역 정보와 이동 안내를 묻는 AI 챗봇 화면",
+    "로그인 사용자별 즐겨찾기 장소 관리 및 글자 크기 조절",
+    "엘리베이터 장애 시 검증되지 않은 경로를 확정 추천하지 않는 접근성 안내 UI"
+  ],
+  "techHighlights": [
+    "역별 엘리베이터 상태를 집계하고 노선도·목록·필터 UI에 반영",
+    "역 검색 자동완성과 선택된 역 식별자를 이용한 출발 시각 계산 화면 구성",
+    "지하철 우회 경로의 접근성 근거·유효기간·구간 연결 여부를 검증하는 프론트엔드 정책과 상태별 안내 UI 구현"
+  ],
+  "techStack": ["React", "Vite", "Typescript", "npm", "Python", "FastAPI", "Pydantic", "SQLAlchemy", "Alembic", "SQLite", "LLM Function Calling"],
+  "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_07_FE",
+  "demoUrl": "배포링크",
+  "demoVideoUrl": "[시연 영상 YouTube HTTPS URL 입력 필요]",
+  "thumbnail": "서비스대표 이미지thumbnail.png",
+  "screenshots": [
+    "screenshots/elevator.png",
+    "screenshots/departure.png",
+    "screenshots/subway-map.png",
+    "screenshots/chatbot.png"
+  ],
+  "members": [
+    {
+      "name": "김여민",
+      "roles": ["백엔드", "배포"],
+      "contribution": "지하철역 및 엘리베이터 데이터 수집·처리, 데이터베이스 설계, 경로 탐색 및 API 개발, 서비스 배포 환경 구축"
+    },
+    {
+      "name": "전성현",
+      "roles": ["AI", "발표", "서비스 연동"],
+      "contribution": "API 개발, 데이터베이스 및 지하철 데이터 처리AI 챗봇 기반 지하철 이동 안내 기능 구현, 프론트엔드·백엔드 서비스 연동, 프로젝트 발표 및 시연 준비"
+    },
+    {
+      "name": "이지수",
+      "roles": ["프론트엔드", "PPT"],
+      "contribution": "지하철 노선도 및 엘리베이터 운행 현황 UI 구현, 출발 시각 계산·즐겨찾기 기능 개발, 사용자 중심 화면 설계 및 발표 자료 제작"
+    }
+  ]
+}
