@@ -1,0 +1,64 @@
+{
+  "teamNumber": 23,
+  "teamName": "IPSE",
+  "title": "스크롤 메이트",
+  "summary": "공부할 자료를 올려 두면 유튜브 쇼츠를 넘기는 사이 그 자료로 만든 문제가 먼저 찾아오는 학습 동료 앱",
+  "thumbnail": "thumbnail.png",
+  "screenshots": [
+    "screenshots/screen-1.png",
+    "screenshots/screen-2.png",
+    "screenshots/screen-3.png",
+    "screenshots/screen-4.png"
+  ],
+  "problem": "공부하려고 폰을 켰다가 쇼츠만 보고 뭘 하려 했는지 잊는 일이 잦음. 청소년 스마트폰 과의존 위험군은 43.0%로 전 연령 중 가장 높고(과기정통부·NIA 2025), 숏폼 이용자의 23%가 이용 시간 조절을 어려워함(2023). 숏폼을 막는 대신 공부가 숏폼으로 찾아오게 해, 숏폼을 보면서도 반복 학습이 가능하게 하려 함",
+  "features": [
+    "PDF·PPTX 자료를 공유하기나 앱 안에서 올리면 서버가 백그라운드에서 AI로 OX·단답 문제를 만듦",
+    "유튜브 쇼츠를 넘기다 보면 문제 카드가 화면 위에 뜨고, 카드 안에서 바로 채점 결과를 보여 줌. 광고 쇼츠 위에는 띄우지 않음",
+    "학습 주제에 시험일을 넣으면 가까운 주제가 더 자주 나오고, 틀린 문제는 간격을 두고 다시 나옴",
+    "홈에서 어제 쇼츠 시청 기록을 보고 건네는 오늘의 한마디와 오늘 시청 수치를 보여 줌"
+  ],
+  "targetUsers": [
+    "시험이나 자격증, 수업 복습을 준비하는 청년",
+    "숏폼을 자주 보지만 복습할 시간을 따로 내기 어려운 사람"
+  ],
+  "techStack": [
+    "Kotlin",
+    "Jetpack Compose",
+    "Room",
+    "WorkManager",
+    "OkHttp",
+    "Android 접근성 서비스",
+    "Python",
+    "FastAPI",
+    "SQLite",
+    "OpenAI API (gpt-5.4-mini)",
+    "Docker",
+    "Fly.io"
+  ],
+  "techHighlights": [
+    "AI는 문제 생성과 오늘의 한마디 문장을 맡음. 문제마다 자료의 근거 문장을 글자 그대로 받아 원문과 대조하고, 근거가 없거나 원문에 없는 문제, 정답이 문제에 드러난 문제는 자동 검사로 버림",
+    "카드를 띄울 시점, 채점, 재출제 간격은 AI가 아닌 규칙으로 처리함. 단답은 명사 하나로 출제하고 같은 대상의 다른 이름을 허용 답안으로 미리 받아 글자 비교로 채점함",
+    "문제를 미리 만들어 기기에 저장해 두므로 카드는 네트워크 없이도 바로 뜸. 학습 주제, 시험일, 시청 기록 원본은 기기에만 두고 서버에는 하루 합계만 보냄"
+  ],
+  "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_23_DOCS",
+  "demoUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_23_FE/releases/tag/v1.0.3",
+  "demoVideoUrl": "https://youtu.be/5d_xGprt8Pw",
+  "members": [
+    {
+      "name": "유현우",
+      "roles": [
+        "백엔드",
+        "AI"
+      ],
+      "contribution": "자료 글자 추출과 문제 생성 서버, 문제 생성 프롬프트와 자동 검사, 오늘의 한마디, 모델 비교 평가, 배포"
+    },
+    {
+      "name": "최세원",
+      "roles": [
+        "프론트엔드",
+        "문서"
+      ],
+      "contribution": "안드로이드 앱(홈, 자료 올리기, 쇼츠 위 문제 카드, 재출제 규칙), 아키텍처·AI 활용 범위 문서, 발표 자료"
+    }
+  ]
+}
