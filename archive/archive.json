@@ -25,8 +25,8 @@
   "techStack": ["React", "Vite", "Typescript", "npm", "Python", "FastAPI", "Pydantic", "SQLAlchemy", "Alembic", "SQLite", "LLM Function Calling"],
   "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_07_FE",
   "demoUrl": "https://example.com",
-  "demoVideoUrl": "[시연 영상 YouTube HTTPS URL 입력 필요]",
-  "thumbnail": "서비스대표 이미지thumbnail.png",
+  "demoVideoUrl": "https://example.com",
+  "thumbnail": "thumbnail.png",
   "screenshots": [
     "screenshots/elevator.png",
     "screenshots/departure.png",
