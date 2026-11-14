@@ -1,0 +1,55 @@
+{
+  "teamNumber": 11,
+  "teamName": "DIFF",
+  "title": "Preflight",
+  "summary": "비싼 코딩 AI에 앱을 맡기기 전에, 무료 AI가 요청의 갈림길·규모·보안을 카드로 정리하고 사람은 고르기만 하면 코딩 AI용 사양서가 나오는 사전 설계 동료입니다.",
+  "thumbnail": "thumbnail.png",
+  "screenshots": [
+    "screenshots/screen-1.png",
+    "screenshots/screen-2.png",
+    "screenshots/screen-3.png",
+    "screenshots/screen-4.png",
+    "screenshots/screen-5.png",
+    "screenshots/screen-6.png",
+    "screenshots/screen-7.png"
+  ],
+  "problem": "AI 코딩 도구로 앱을 만드는 사람은 보통 '만들어 줘' 한 줄로 시작합니다. 그러면 코딩 AI가 모호한 부분을 멋대로 채우고 고치는 왕복이 늘어나며, 키 하드코딩·권한 검사 누락 같은 보안 구멍이 생기고(AI 생성 코드의 45%가 OWASP Top 10 보안 테스트 실패, Veracode 2025), 혼자서는 끝낼 수 없는 규모를 모르고 시작해 중간에 멈추기도 합니다.",
+  "features": [
+    "시작 전 규모 판정: 목적(개인/공개/판매)별로 혼자 가능 · 혼자는 어려움 · 사실상 불가능을 판정하고, 암호화폐·금융·의료처럼 위험한 분야는 규칙으로 기업급 경고",
+    "갈림길 카드: 비즈니스 규칙(벌금·권한·기록 등)을 먼저, 기술 선택을 다음으로 묻고 보기마다 구현 난이도를 표시",
+    "곧 필요해질 기능 제안: 요청엔 없지만 곧 찾게 될 기능을 지금 / 나중에 / 필요 없음으로 고르고, '나중에'는 구조만 열어 두도록 사양서에 기록",
+    "규칙 자동 추천: 고른 내용에 맞춰 유지보수 9종·보안 10종 규칙을 규칙 기반으로 추천",
+    "코딩 AI용 사양서: 영어본(CLAUDE.md·AGENTS.md)과 한국어 확인본, 작업별 난이도와 이유, 추천 기술 스택, 추정 예산, 이 앱 맞춤 보안 확인",
+    "작업 보드: 보안 확인을 사람이 체크하기 전에는 완료로 옮길 수 없음",
+    "사후 점검: 코딩 AI가 만든 코드의 규칙 위반을 짚고 고칠 것만 골라 수정 요청문 생성",
+    "내 Claude·GPT 키 사용(선택)과 실행 기록 JSON 내보내기"
+  ],
+  "targetUsers": [
+    "AI 코딩 도구로 앱을 만드는 청년 (학생, 예비 창업자)",
+    "개발 경험이 적은 비전공 바이브코더"
+  ],
+  "techStack": [
+    "TypeScript",
+    "React",
+    "Vite",
+    "Vercel Edge Functions",
+    "Google Gemini Flash-Lite (무료 티어)",
+    "Anthropic Claude / OpenAI API (사용자 키, 선택)",
+    "GitHub Actions"
+  ],
+  "techHighlights": [
+    "AI가 제안하고, 틀리면 안 되는 것은 규칙이 지키고, 사람이 결정하는 구조: 규칙 추천·위험 분야 규모 바닥·난이도와 예산 보정은 AI 없이 규칙 기반으로 결정적으로 동작하고, AI 실패 시 고정 결과를 꾸미지 않고 '기본값'과 사유를 표시",
+    "UI·네트워크가 없는 TypeScript 핵심 모듈과 테스트 85개, 무료 경량 모델의 깨진 응답은 한 번 더 요청하고 남은 한국어는 다시 번역",
+    "직접 잰 검증: 같은 요청을 맥락 없는 Claude 코딩 에이전트에 넣었을 때 사양서가 있으면 첫 답에서 규칙 위반 0, 없으면 수정 요청 1~2회 (요청 2건 × 1회, 경향 확인 수준)"
+  ],
+  "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_11",
+  "demoUrl": "https://woowangthon-team-11.vercel.app",
+  "demoVideoUrl": "https://youtu.be/1uqI5SDya6E",
+  "members": [
+    {
+      "name": "이도연",
+      "roles": ["기획", "개발", "디자인"],
+      "contribution": "아이디어·문제 정의, 기능과 구조 결정, 테스트와 피드백. 구현과 기록은 AI 코딩 도구(Claude)와 협업"
+    }
+  ]
+}
