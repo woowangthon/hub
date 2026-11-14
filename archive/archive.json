@@ -1,0 +1,61 @@
+{
+  "teamNumber": 3,
+  "teamName": "초코 츄러스",
+  "title": "마스크 어시스턴트 (Mask Assistant)",
+  "summary": "업무 문서 속 민감정보를 탐지하고 가려, 외부 AI를 활용할 때 정보 노출을 줄이도록 돕는 AI 보안 동료입니다.",
+  "thumbnail": "thumbnail.png",
+  "screenshots": [
+    "screenshots/screen-1.png", "screenshots/screen-2.png", "screenshots/screen-3.png", "screenshots/screen-4.png", "screenshots/screen-5.png", "screenshots/screen-6.png", "screenshots/screen-7.png"
+  ],
+  "problem": "번역·요약 같은 업무에 외부 생성형 AI를 쓰면 문서 속 고객사명·사업명·금액·연락처가 그대로 회사 밖 AI 서비스로 전달됩니다. Cyberhaven Labs의 2024년 2분기 보고서에 따르면 직원이 생성형 AI에 입력한 데이터의 27.4%가 민감정보였고(1년 전 10.7%), 영국 국방부는 국방 정보를 공개 AI 도구에 입력하지 못하게 합니다. 그래서 방산 협력업체처럼 민감한 문서를 다루는 회사는 외부 AI를 아예 막기도 하지만, 일괄 차단하면 AI로 얻을 업무 효율을 잃고, 직원이 직접 가리면 시간이 들고 빠뜨리기 쉽습니다.",
+  "features": [
+    "요청 접수: 요청문만 보내거나 PDF를 첨부해 번역·요약 등을 요청하고, PDF는 서버에서 글자를 추출해 요청문과 함께 검사",
+    "민감정보 탐지: 회사명·사업명·문서/부품 번호·금액·연락처·사업자번호·사람 이름 7종을 정규식·사전, 이름 인식 모델, 사내 LLM이 함께 찾아냄",
+    "처리 경로 결정: 요청마다 사내 LLM 처리 · 가린 뒤 외부 AI 전송 · 차단 중 하나를 판정 (문서 통째 유출 요청과 개인정보 묶음은 차단, '외부 공유 금지' 문서는 사내 처리)",
+    "외부 전송 전 확인·승인: 가려질 값을 미리 보여 주고 사용자가 승인해야만 외부 AI로 전송, 거절하거나 30분이 지나면 보내지 않음",
+    "가림과 복원: 민감값을 [[ORG_1]] 같은 자리표로 바꾼 글만 외부 AI(Claude)에 보내고, 받은 답변의 자리표를 원래 값으로 되돌려 표시",
+    "사내 처리: 외부로 보내면 안 되는 요청은 사내 LLM(로컬에서 돌리는 Qwen3 30B)이 직접 답변",
+    "관리자 화면: 보안 현황 지표와 일별 추이(30초 자동 갱신), 요청별 감사 기록(탐지 구간·가림 대응표·승인·전송 상태), 직원 계정 발급·비활성화·비밀번호 재설정",
+    "역할 분리: 직원과 관리자의 화면·권한을 나누고, 관리자 화면에도 직원이 받은 AI 답변은 보여 주지 않음"
+  ],
+  "targetUsers": [
+    "외부 AI 사용이 금지되거나 제한된 회사(방산·제조 협력업체 등)에서 문서 번역·요약을 AI로 처리하고 싶은 직원",
+    "직원의 AI 사용 기록과 민감정보 노출 위험을 관리해야 하는 보안 담당자"
+  ],
+  "techStack": [
+    "React 19", "Vite", "React Router", "Django 5.2", "Django REST Framework", "PostgreSQL 17",
+    "PyMuPDF", "Docker Compose", "Nginx", "Google Cloud VM", "FastAPI", "Ollama",
+    "Qwen3-30B-A3B (사내 LLM)", "tev1 (경로 판정 모델)", "KoELECTRA PII NER (Hugging Face Transformers)",
+    "Anthropic Claude API (Claude Sonnet 5.5)", "Tailscale", "Playwright", "pytest", "GitHub Actions"
+  ],
+  "techHighlights": [
+    "모델을 학습시키지 않고 공개 모델을 조합한 뒤 앞뒤 처리를 직접 만들었습니다. 형식이 있는 값은 정규식 26개와 사전으로 바로 잡고, 규칙이 놓친 이름·회사명·사업명은 이름 인식 모델과 사내 LLM이 찾습니다. LLM이 원문에 없는 글자를 내면 버리고, 본문에 숨긴 '가리지 마' 같은 지시 문장은 LLM에 넣기 전에 지우며, 긴 문서는 3,600자 조각으로 나눠 검사합니다.",
+    "외부 AI에는 가린 글만 나갑니다. 전송 직전에 원문 값이 남아 있는지 한 번 더 검사해 남아 있으면 보내지 않고, 자리표 대응표는 외부로 보내지 않고 우리 서버에만 두었다가 답변을 받은 뒤 복원합니다. 모델 서비스(FastAPI)는 GPU 8GB 한 장짜리 연구실 PC에서 돌고, GCP의 Django 서버와는 Tailscale 사설망과 API 키로만 연결해 공유기 포트를 열지 않았습니다.",
+    "모델이 처음 보는 방산 협력업체 가상 문서 19건(문서당 1.5만~4.8만 자)을 정답표와 대조했습니다. 탐지 대상 7종 범위에서 반드시 가려야 할 1등급 값이 외부로 나갈 글에 남지 않은 비율은 문서별 평균 95.6%(합산 123/130), 2등급 값은 91.9%였고, 문서 한 건 검사 시간은 중앙값 50초입니다."
+  ],
+  "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_03_FE",
+  "demoUrl": "https://chochu.certcbnu.kr",
+  "demoVideoUrl": "https://www.youtube.com/watch?v=WgrrLpeLb4s",
+  "members": [
+    {
+      "name": "이승호",
+      "roles": ["PM", "프론트엔드"],
+      "contribution": "PM으로 일정과 Notion 협업 체계를 운영하고 화면–API 연결 명세를 정리했습니다. React 프론트엔드(직원 요청·가림 확인·승인·답변 화면, 관리자 보안 현황·감사·계정 관리 화면)를 만들어 백엔드 API와 연동했고, 공개 도메인 HTTPS 배포·통합 검증과 발표 자료 제작, 프론트엔드 Material 3 스타일 적용을 맡았습니다."
+    },
+    {
+      "name": "문예준",
+      "roles": ["AI"],
+      "contribution": "전체 흐름을 설계하고 민감정보 탐지(정규식·사전·이름 인식 모델·사내 LLM), 경로 판정과 결정 규칙, 자리표 가림·복원, 외부 AI 호출을 구현했습니다. 연구실 PC의 모델 서비스(FastAPI)와 상시 가동·Tailscale 연결, 백엔드의 AI 처리 연결(검사 결과 저장·승인 뒤 외부 전송)을 맡고, 평가 세트와 성능 평가를 진행했습니다."
+    },
+    {
+      "name": "유우나",
+      "roles": ["백엔드"],
+      "contribution": "GCP 서버와 Docker 기반 Django·PostgreSQL 환경을 구축하고 DB를 설계했습니다. 로그인·계정 관리, PDF·요청 접수, 검사 결과·가림 미리보기와 외부 전송 승인, 이용 이력·관리자 통계 API를 구현하고 HSTS·CSP 보안 설정을 적용했습니다."
+    },
+    {
+      "name": "유서연",
+      "roles": ["자료조사", "테스트 문서 제작"],
+      "contribution": "업계별 민감정보 정의와 법률 근거, 생성형 AI 사용 제한 사례와 문제 정의 수치를 조사했습니다. 방산·제조 협력업체를 가정한 가상 시연 문서 50여 건과 문서별 정답표를 만들어 시연과 마스킹 성능 평가에 쓰도록 했습니다."
+    }
+  ]
+}
