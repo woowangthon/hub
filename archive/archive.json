@@ -1,0 +1,62 @@
+{
+  "teamNumber": 21,
+  "teamName": "24컴공",
+  "title": "약, 드셨나요?",
+  "summary": "따로 사는 치매 어르신의 복약을 AI가 매일 묻고 약통 사진으로 확인해, 예외일 때만 가족에게 알리는 앱입니다.",
+  "thumbnail": "thumbnail.png",
+  "screenshots": [
+    "screenshots/screen-1-elder-ask.png",
+    "screenshots/screen-2-elder-recorded.png",
+    "screenshots/screen-3-guardian-record.png",
+    "screenshots/screen-4-elder-retake.png",
+    "screenshots/screen-5-guardian-verdict.png",
+    "screenshots/screen-6-guardian-home.png"
+  ],
+  "problem": "치매는 가장 최근의 기억부터 잃어서, 따로 사는 어르신은 오늘 약을 먹었는지 스스로 기억하지 못합니다. 그래서 약을 거르거나 두 번 드시는 일이 생기는데, 치매 약 중에는 두 번 드시면 안 되거나 며칠 쉬면 용량을 다시 맞춰야 하는 약이 있습니다. 지금은 가족이 복약 시간마다 연락해 약통 사진을 받아 직접 확인하고 있고, 이 일이 매일 반복되어 가족의 부담이 큽니다.",
+  "features": [
+    "복약 시간에 어르신 폰이 가족 말투로 묻고, 답이 없으면 10분 간격으로 다시 묻습니다",
+    "어르신이 쓰던 약통을 사진 한 장으로 찍으면 AI가 칸마다 빈 칸 · 약 있음 · 애매를 판독합니다",
+    "정상이면 가족에게 알리지 않고 기록만 남깁니다",
+    "무응답, 판독 애매, 칸이 그대로, 이중 복용 의심일 때만 가족에게 푸시로 넘깁니다",
+    "가족이 사진과 판독을 보고 정상 복용 · 중복 복용 · 미복용을 판정합니다",
+    "어르신은 \"나 약 먹었나?\"로 오늘 기록을 시각과 사진으로 다시 볼 수 있습니다",
+    "가족 화면에서 약통 등록, 복약 시각 설정, 기록 검색과 통계를 볼 수 있습니다"
+  ],
+  "targetUsers": [
+    "가족이 부탁하면 사진을 찍어 줄 수 있는 경도 · 초기 치매 어르신",
+    "따로 살면서 매일 연락해 복약을 확인하는 가족"
+  ],
+  "techStack": [
+    "Expo",
+    "React Native",
+    "TypeScript",
+    "Python",
+    "FastAPI",
+    "SQLAlchemy",
+    "PostgreSQL",
+    "OpenAI API",
+    "Firebase Cloud Messaging",
+    "Docker Compose",
+    "Cloudflare Tunnel"
+  ],
+  "techHighlights": [
+    "AI는 칸의 상태, 신뢰도, 촬영 각도만 답하고 가족에게 넘길지는 서버 규칙이 정합니다. 신뢰도가 0.9 미만이거나 비스듬히 찍은 사진은 복용으로 기록하지 않고 다시 찍기를 한 번 요청한 뒤 가족에게 넘깁니다.",
+    "직접 찍은 약통 사진에 사람이 확인한 정답을 달아 모델을 비교하는 평가 도구를 만들었습니다. 사진 60장(420칸) 비교에서 gpt-6.1-sol의 칸 정답률은 95.7%였고, 각도 판정을 넣은 뒤 다시 찍기 없이 잘못 기록되는 칸이 15칸에서 0칸으로 줄었습니다.",
+    "재질문과 무응답 인계 시각은 서버가 1분 주기로 재므로 어르신 폰이 꺼져 있어도 30분 뒤 가족에게 넘어갑니다. 푸시는 서버가 FCM HTTP v1으로 직접 보냅니다."
+  ],
+  "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_21_BE",
+  "demoUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_21_FE/releases/tag/v1.0.0",
+  "demoVideoUrl": "https://youtu.be/JQhRUW4Asos",
+  "members": [
+    {
+      "name": "신현수",
+      "roles": [
+        "기획",
+        "프론트엔드",
+        "백엔드",
+        "AI"
+      ],
+      "contribution": "1인 개발. 기획, 어르신 · 보호자 앱, 서버와 분류 규칙, AI 판독 프롬프트와 정확도 평가를 맡았습니다."
+    }
+  ]
+}
