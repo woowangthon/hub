@@ -1,0 +1,83 @@
+{
+  "teamNumber": 13,
+  "teamName": "F4",
+  "title": "crewBean",
+  "summary": "개인 카페 신입 알바생에게 우리 매장 매뉴얼로 답해 주고, 모르는 건 사장님께 넘겨 주는 AI 사수 웹 앱입니다.",
+  "thumbnail": "thumbnail.png",
+  "screenshots": [
+    "screenshots/staff-chat.png",
+    "screenshots/staff-home.png",
+    "screenshots/staff-recipe.png",
+    "screenshots/owner-home.png"
+  ],
+  "problem": "개인 카페의 신입 알바생은 레시피, 마감 순서, 손님 응대가 헷갈려도 바쁜 사장님께 계속 묻기 어렵습니다. 사장님은 같은 질문에 반복해서 답하고, 매장마다 다른 매뉴얼과 인수인계가 메신저와 종이에 흩어져 있습니다. 일반 AI 챗봇은 우리 매장의 방식을 모르기 때문에 그럴듯하게 틀린 답을 줄 수 있어, 근거가 있는 답과 사람에게 넘기는 길이 함께 필요합니다.",
+  "targetUsers": [
+    "개인 카페에서 처음 일하는 신입 알바생",
+    "매장 매뉴얼과 직원 질문을 관리하는 개인 카페 사장님",
+    "여러 매장에서 일하는 n잡 알바생"
+  ],
+  "features": [
+    "AI 사수 채팅: 우리 매장 매뉴얼 · 레시피를 근거로 출처와 함께 답변",
+    "사장님께 물어보기: 근거가 없으면 지어내지 않고 사장님께 질문을 넘기고, 답변은 채팅과 앱 알림으로 전달 · 매뉴얼로 저장",
+    "포스기처럼 카테고리로 찾는 레시피와 매장 매뉴얼",
+    "줄글로 쓰면 AI가 외상 · 재고 · 기타로 정리하는 인수인계와 항목별 체크",
+    "사진 스캔으로 만드는 레시피 · 매뉴얼 AI 초안",
+    "직원별 초대코드 발급 · 카카오톡 공유와 초대코드 입장",
+    "공유 근무표 · 대타 요청 · 예상 급여와 사장님 급여 관리",
+    "여러 매장 전환과 PWA 앱 알림"
+  ],
+  "techHighlights": [
+    "AI 답변은 매장에 등록된 매뉴얼 · 레시피에서만 근거를 찾고 출처를 함께 보여 주며, 근거가 없으면 답을 만들지 않고 사장님께 질문을 넘기는 흐름으로 설계했습니다.",
+    "기능별로 진짜 API와 가짜 서버를 고를 수 있는 스위치를 두어, BE가 기능 단위로 열리는 동안에도 FE 개발과 시연을 이어 갔습니다.",
+    "모바일 웹을 PWA로 배포해 설치 없이 홈 화면 앱처럼 쓰고, 질문 · 답변을 Web Push 알림으로 받을 수 있게 했습니다."
+  ],
+  "techStack": [
+    "React",
+    "TypeScript",
+    "Vite",
+    "TanStack Query",
+    "Tailwind CSS",
+    "FastAPI",
+    "PostgreSQL",
+    "Supabase Auth",
+    "Google Gemini",
+    "Vercel",
+    "Render",
+    "PWA"
+  ],
+  "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_13_FE",
+  "demoUrl": "https://woowangthon-team-13-fe.vercel.app",
+  "demoVideoUrl": "https://www.youtube.com/watch?v=tNBlgXNmUDY",
+  "members": [
+    {
+      "name": "류민지",
+      "roles": [
+        "프론트엔드"
+      ],
+      "contribution": "프로젝트 세팅, 로그인 · 초대코드 입장, 알바생 화면(AI 사수 채팅 · 인수인계 · 레시피 · 매뉴얼 · 근무 · 급여), 공통 데이터 · 에러 처리와 BE 연결"
+    },
+    {
+      "name": "최나현",
+      "roles": [
+        "프론트엔드",
+        "디자인"
+      ],
+      "contribution": "서비스 전체 디자인과 디자인 시스템, 사장님 화면(매장 · 직원 · 초대코드 · 레시피 · 매뉴얼 · 사진 스캔 · 확인 필요 · 근무 · 급여)"
+    },
+    {
+      "name": "이은교",
+      "roles": [
+        "백엔드"
+      ],
+      "contribution": "로그인 인증, 매장 · 구성원 · 초대코드, 스케줄, PWA 푸시 알림 API"
+    },
+    {
+      "name": "남연서",
+      "roles": [
+        "백엔드",
+        "AI"
+      ],
+      "contribution": "매뉴얼 · 레시피, AI 사수 채팅(Gemini), 인수인계 AI 정리, 급여 API와 서버 배포"
+    }
+  ]
+}
