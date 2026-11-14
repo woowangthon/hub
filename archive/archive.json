@@ -12,10 +12,10 @@
     "screenshots/dashboard2.png",
     "screenshots/report.png",
     "screenshots/profile.png",
-    "screenshots/inbody.png",
     "screenshots/hardtime.png",
-    "screenshots/timetable.png",
-    "screenshots/bodyinfo.png"
+    "screenshots/bodyinfo.png",
+    "screenshots/inbody.png",
+    "screenshots/timetable.png"
   ],
   "problem": "대학생은 많은 양의 수업, 시험, 약속으로 매주 일정이 달라 운동 시간을 꾸준히 확보하기 어렵고, 혼자 계획을 세우면 근거가 불확실한 정보에 기대거나 자신의 체형·운동 경력에 맞지 않는 운동을 하기 쉽습니다. 운동을 습관으로 만들려면 바쁜 일정 안에서도 실천할 수 있고 몸 상태에 맞는 계획이 필요합니다.",
   "features": [
