@@ -1,0 +1,47 @@
+{
+  "teamNumber": 10,
+  "teamName": "치타는 울고 있다",
+  "title": "넌지시",
+  "summary": "말하지 못한 팀원의 의견을 팀의 AI가 넌지시 전해 주는 프로젝트 대화 서비스입니다.",
+  "thumbnail": "thumbnail.png",
+  "screenshots": [
+    "screenshots/screen-1.png",
+    "screenshots/screen-2.png",
+    "screenshots/screen-3.png"
+  ],
+  "problem": "팀원은 저마다 의견이 있지만, 받아들여지지 않을 것 같거나 정리하지 못해서 말하지 못합니다. 개인 AI는 한 사람의 의견만 알고, 팀 문서는 완성된 의견만 받습니다. 그래서 말하지 못한 의견은 팀의 결정에 반영되지 않습니다.",
+  "targetUsers": [
+    "발표와 보고서를 함께 만드는 대학생 프로젝트 팀"
+  ],
+  "features": [
+    "떠오른 생각을 메모로 적고 AI로 정리해 공유",
+    "공유 범위 선택: 팀에 공유 또는 AI만 참고",
+    "회의록과 팀 메모를 반영해 답하는 프로젝트 AI 대화",
+    "팀에 공유한 지식은 출처와 함께 답변에 표시",
+    "「AI만 참고」 메모는 원문과 출처 없이 추천의 방향으로만 반영",
+    "공유를 철회·수정·삭제하면 관련 답변을 다시 씀"
+  ],
+  "techHighlights": [
+    "권한을 프롬프트가 아니라 서버와 DB 제약으로 강제합니다. 다른 팀원의 「AI만 참고」 원문은 답변 모델에 보내지 않고, 별도 호출로 만든 전달용 정리만 서버 검사를 거쳐 넘깁니다.",
+    "모델 출력을 서버가 다시 검사해, 내부 번호나 출처 표현이 어긋나면 다시 쓰게 합니다.",
+    "지식이 바뀌면 그 지식이 넘어간 답변을 기록으로 찾아 다시 씁니다."
+  ],
+  "techStack": [
+    "Next.js",
+    "React",
+    "TypeScript",
+    "PostgreSQL",
+    "OpenAI Responses API",
+    "Vercel"
+  ],
+  "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_10",
+  "demoUrl": "https://neonjisiai.vercel.app",
+  "demoVideoUrl": "https://youtu.be/HPH3byqJllE",
+  "members": [
+    {
+      "name": "오성군",
+      "roles": ["기획", "풀스택"],
+      "contribution": "문제 정의와 설계 판단, AI 코딩 도구를 활용한 구현과 검토, 배포와 운영"
+    }
+  ]
+}
