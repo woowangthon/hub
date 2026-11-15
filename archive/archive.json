@@ -50,7 +50,7 @@
 ],
 "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_17_FE",
 "demoUrl": "https://53ee.sytes.net/",
-"demoVideoUrl": "https://www.youtube.com/watch?v=yS1GsyPVVmI",
+"demoVideoUrl": "https://www.youtube.com/watch?v=RUmhxGwi--o",
 "members": [
 {"name": "김건우", "roles": ["풀스택" ,"DB", "AI 학습"], "contribution": "Qwen 학습·평가 및 Gemini·Qwen 취향 분석 앙상블 구현, 여행방 API·공동 캔버스·여행 종합 화면 개발, Docker GPU 서버 배포"},
 {"name": "박정환", "roles": ["풀스택","알고리즘 설계"], "contribution": "일행별 취향 점수로 장소 후보 선별, Gemini 일정 초안 생성, 2-opt·relocate로 방문 순서 개선, ALNS로 시간표 복구, 장소 임베딩·MMR로 유사 장소 반복 완화"},
