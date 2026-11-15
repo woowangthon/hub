@@ -1,0 +1,60 @@
+{
+  "teamNumber": 25,
+  "teamName": "C1S2",
+  "title": "Phishing Check",
+  "summary": "피싱 위험 없는 중고거래",
+  "problem": "지역사회 내에서 중고거래가 많은데, 사기 범죄도 늘고 있다. 그중 사이버 사기는 개인정보 탈취, 금융범죄로 이어지고 온라인 상에서 벌어지니 검거도 쉽지 않다.",
+  "targetUsers": [
+    "중고 거래 진행 중 외부 사이트 유도받은 사용자",
+    "피싱 사이트에 노출된 인터넷 이용자 대부분"
+  ],
+  "features": [
+    "사업자 정보를 대조해 사이트의 위험도를 측정합니다.",
+    "AI를 활용해 텍스트 분석 및 위험도 추정"
+  ],
+  "techHighlights": [
+    "국세청, 공정위 api 조회로 패스키로 빠르게 공공데이터를 받을 수 있고 크롤링한 데이터와 대조가 가능하다",
+    "AI가 사이트의 문맥을 검사하여 수상한 부분을 검사. 무통장으로 이체 시켜야 된다는 내용을 빠르게 잡아낼 수 있다."
+  ],
+  "techStack": [
+    "HTML, CSS, JavaScript",
+    "Chrome Extensions Manifest V3",
+    "python-Django",
+    "sqlite",
+    "Amazon Lightsail"
+  ],
+  "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_25_FE.git",
+  "demoUrl": "https://drive.google.com/file/d/1e38No1uOBAA-g5LU82ildGCr0FTl69Ns/view?usp=sharing",
+  "demoVideoUrl": "https://www.youtube.com/watch?v=ytFzwJ9EZpA",
+  "thumbnail": "thumbnail.png",
+  "screenshots": [
+    "screenshots/FE_result.png",
+    "screenshots/back_end_system.png"
+  ],
+  "members": [
+    {
+      "name": "한철연",
+      "roles": [
+        "팀장",
+        "백엔드"
+      ],
+      "contribution": "백엔드 설계, API 호출 및 대조 구현"
+    },
+    {
+      "name": "한준영",
+      "roles": [
+        "AI",
+        "서버 관리"
+      ],
+      "contribution": "AI 제작, 서버 관리 및 배포"
+    },
+    {
+      "name": "김용민",
+      "roles": [
+        "프론트",
+        "크롤링"
+      ],
+      "contribution": "플러그인 화면 구현, 크롤링 구현"
+    }
+  ]
+}
