@@ -17,7 +17,7 @@
   ],
   "techStack": ["JavaScript", "HTML", "CSS", "FastAPI", "Supabase", "Groq GPT-OSS 20B", "Cloudflare Workers AI FLUX.1 schnell"],
   "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_22_FE",
-  "demoVideoUrl": "",
+  "demoVideoUrl": "https://today-and-near-team22.pages.dev/",
   "thumbnail": "thumbnail.jpg",
   "screenshots": ["screenshots/paper-plane-sample.jpg"],
   "members": [
