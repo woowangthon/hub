@@ -21,7 +21,8 @@
   ],
   "techStack": ["HTML", "CSS", "JavaScript", "Canvas API", "Python", "FastAPI", "Pydantic", "Supabase Auth·PostgreSQL·Storage", "Groq API", "Cloudflare Workers AI FLUX.1 schnell", "RapidOCR·ONNX Runtime", "Docker", "Render", "Cloudflare Pages"],
   "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_22_FE",
-  "demoVideoUrl": "https://today-and-near-team22.pages.dev/",
+  "demoUrl": "https://today-and-near-team22.pages.dev/",
+  "demoVideoUrl": "https://www.youtube.com/watch?v=1aYGyOrBU4E",
   "thumbnail": "thumbnail.png",
   "screenshots": ["screenshots/screenshot_screen2.png", "screenshots/screenshot_screen1.jpg"],
   "members": [
