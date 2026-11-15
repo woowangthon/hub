@@ -10,7 +10,7 @@
 	"techStack": ["FastAPI"],
 	"techHighlights": ["ai와 front를 연결하기 위해 FastAPI를 사용했습니다."],
 	"repositoryUrl": "https://github.com/woowangthon/hub",
-	"demoUrl": "158.179.195.20:8000",
+	"demoUrl": "http://158.179.195.20:8000",
 	"demoVideoUrl": "https://youtu.be/1EGJ_aljTUM",
 	"members": [
 		{"name": "임경택", "roles": ["프론트엔드", "백엔드", "AI"], "contribution": "프로젝트 전체 구현"}
