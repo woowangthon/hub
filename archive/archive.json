@@ -1,0 +1,29 @@
+{
+  "teamNumber": 33,
+  "teamName": "MIND",
+  "title": "민원사이",
+  "summary": "민원의 핵심 요청을 정리하고 공격적 표현의 노출을 줄이며 담당자의 답변 작성을 돕는 AI 민원 업무 도우미입니다.",
+  "thumbnail": "thumbnail.png",
+  "screenshots": ["screenshots/voice-assistance-demo.png"],
+  "problem": "민원 담당자는 감정적인 표현이 섞인 긴 민원에서 사실과 요청을 정리하고 관련 근거를 찾아 답변해야 합니다. 민원사이는 정당한 요청을 보존하면서 담당자의 반복 정리 업무와 공격적인 표현의 노출을 줄이는 것을 목표로 합니다.",
+  "features": [
+    "민원 신청·접수번호 조회와 담당자 처리 화면",
+    "핵심 사실·요청 요약 및 욕설·공격 표현 감지",
+    "공식 법령 검색과 담당자가 검토·수정하는 답변 초안",
+    "웹 음성 상담과 담당자 화면의 요청별 답변 도움·추가 확인 사항"
+  ],
+  "targetUsers": ["민원 내용을 접수하고 답변하는 담당자", "생활 불편을 알리고 처리 결과를 확인하는 민원인"],
+  "techStack": ["Next.js", "React", "TypeScript", "Node.js", "PostgreSQL", "Vercel", "WebSocket", "Web Audio API", "AWS EC2", "OpenAI API", "Gemini API"],
+  "techHighlights": [
+    "민원인과 담당자 화면을 구분하고 공통 데이터베이스로 접수·분석·답변 상태를 연결했습니다.",
+    "원문의 사실과 요청을 정리하고 공식 법령 조회 결과를 답변 검토 흐름에 연결했습니다.",
+    "별도 음성 서버에서 웹 통화와 발화 처리를 지원하고 요청별 답변 초안과 추가 확인 사항을 담당자에게 제공합니다."
+  ],
+  "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_33_FE",
+  "demoUrl": "https://shield-solve-staff.vercel.app/",
+  "demoVideoUrl": "https://youtu.be/7-oxolmVdQg",
+  "members": [
+    {"name": "권도희", "roles": ["팀장", "개발 총괄"], "contribution": "민원 웹 서비스와 AI·음성 처리 기능 개발 및 제출 총괄"},
+    {"name": "김지영", "roles": ["발표", "디자인"], "contribution": "서비스 디자인과 발표 자료 구성"}
+  ]
+}
