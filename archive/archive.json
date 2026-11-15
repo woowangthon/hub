@@ -1,0 +1,18 @@
+{
+	"teamNumber": 32,
+	"teamName": "re:mind",
+	"title": "re:mind",
+	"summary": "이미지/텍스트 일기에서 감정을 추출하고, 이런 감정을 느꼈던 날이 언제인지 검색할 수 있는 서비스입니다.",
+	"thumbnail": "thumbnail.png",
+	"problem": "손글씨로 쓴 일기는 검색이 어렵습니다.",
+	"features": ["이미지 등록", "감정 검색"],
+	"targetUsers": ["손글씨 일기를 검색 가능하게 만들고 싶은 사람"],
+	"techStack": ["FastAPI"],
+	"techHighlights": [""],
+	"repositoryUrl": "https://github.com/woowangthon/hub",
+	"demoUrl": "",
+	"demoVideoUrl": "https://youtu.be/1EGJ_aljTUM",
+	"members": [
+		{"name": "임경택", "roles": ["프론트엔드", "백엔드", "AI"], "comtribution": "프로젝트 전체 구현"}
+	]
+}
