@@ -1,0 +1,56 @@
+{
+  "teamNumber": 18,
+  "teamName": "왕가네식구들",
+  "title": "WCP (Wang's Cloud Platform)",
+  "summary": "공개 GitHub 레포 주소만 넣으면 학교 PC 클러스터에 배포하고, 막히면 AI 동료가 원인을 찾아 고쳐 주는 학생용 배포 플랫폼입니다.",
+  "thumbnail": "thumbnail.png",
+  "screenshots": ["screenshots/flow-1-new.png", "screenshots/flow-2-ready.png", "screenshots/flow-3-done.png", "screenshots/ai-1-fixed.png", "screenshots/ai-2-pr.png", "screenshots/ai-3-needs-user.png", "screenshots/admin-nodes.png", "screenshots/landing-school.png"],
+  "problem": "채용 공고와 해커톤이 배포 경험을 요구하지만, 학생에게는 세 가지가 걸립니다. 소프트웨어학부 설문(37명)에서 41%가 배포 경험이 없었고, 68%가 배포 뒤 유지보수를 부담으로 꼽았으며, 배포해 본 22명 중 지금도 운영 중인 사람은 7명뿐이었습니다. 78%는 비용을 걱정했습니다. 서울 리전 AWS 온디맨드로 서비스 1개와 DB 1개를 항상 켜 두면 월 약 $57이라, 많은 프로젝트가 배포 직후나 과목이 끝나면 내려갑니다.",
+  "features": [
+    "이메일 로그인과 GitHub 연동, 레포 소유 확인과 배포할 commit 확정",
+    "레포 설정 파일로 배포 설정 초안을 채우고 비밀값을 안전하게 입력",
+    "빌드 → 배포 → 동작 확인 → 공개 주소(<slug>.stairnoworks.com) 연결과 진행 상태 화면",
+    "슬롯 A · B 무중단 전환: 새 버전을 확인한 뒤에만 공개 연결을 바꿈",
+    "gitleaks · Trivy 보안 검사 경고",
+    "배포 실패 시 AI 동료가 원인을 찾아 시험 슬롯에서 고치고 다시 배포, 레포 수정이 필요하면 봇 계정으로 수정 PR",
+    "운영 알림: 재시작 반복은 규칙으로 자동 중지, 그 밖의 경고는 AI가 위험 · 원인 · 권고를 붙여 화면과 Discord로 알림",
+    "학생 화면(상태 · 지표 그래프 · 재시작 · 중지 · 삭제)과 운영자 화면(노드 자원 · 실행 중인 서비스 · 강제 중지)"
+  ],
+  "targetUsers": [
+    "처음 배포해 보는 학생",
+    "배포한 서비스를 계속 운영하고 싶지만 비용이 걱정되는 학생",
+    "교내 유휴 PC로 학생에게 클라우드를 제공하려는 학교"
+  ],
+  "techStack": [
+    "React", "TypeScript", "Vite", "Tailwind CSS",
+    "Nest.js", "FastAPI", "PydanticAI",
+    "Supabase", "k3s", "GoCD", "AWS (CodeBuild · S3 · CloudFront · EC2)", "GHCR",
+    "Tailscale", "Cloudflare Tunnel", "Prometheus", "Grafana",
+    "vLLM (Qwen3-8B-AWQ)", "gitleaks", "Trivy"
+  ],
+  "techHighlights": [
+    "학교에서 빌린 PC 3대를 k3s 클러스터로 묶고, Tailscale(서버 ↔ 클러스터)과 Cloudflare Tunnel(방문자 진입)로 학교망에 들어오는 포트를 열지 않고 서비스합니다.",
+    "AI 동료는 플랫폼 게이트웨이가 허락한 도구로만 움직입니다. 추론 모델이 분류 · 계획하고 로컬 Qwen3-8B가 실행하며, 공개되지 않은 시험 슬롯에서만 고치고, 비밀값을 읽는 도구가 없고 로그 속 비밀값은 가려서 보냅니다.",
+    "서비스마다 슬롯 A · B를 두어 새 버전을 확인한 뒤에만 공개 연결을 바꾸므로, 배포가 실패해도 지금 서비스는 그대로입니다."
+  ],
+  "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_18",
+  "demoUrl": "https://app.stairnoworks.com",
+  "demoVideoUrl": "https://www.youtube.com/watch?v=i7fScZvJQtE",
+  "members": [
+    {
+      "name": "최태진",
+      "roles": ["Full-stack"],
+      "contribution": "프론트엔드 화면 전반(랜딩 · 배포 진행 · 대시보드 · 관리자), 배포 대기열과 운영 알림(스파이크 감지 → AI 판단 → Discord) BE, AI 에이전트의 수정 PR 도구(edit_repo_file · open_pr)와 추적 로그, AWS(EC2 · S3 · CloudFront · CodeBuild)와 Supabase 관리, 문서 · ADR 정리"
+    },
+    {
+      "name": "남유성",
+      "roles": ["Infra"],
+      "contribution": "학교 PC 3대를 스위치로 직접 연결해 물리 클러스터를 구축하고 k3s를 올림(GPU · vLLM, GHCR 캐시, 학생 공간), Tailscale 사설망과 Cloudflare Tunnel 공개 진입, Prometheus · Grafana, 플랫폼 서버 권한과 클러스터 호출 모듈, GoCD 배포 실행기, 아키텍처 다이어그램과 README"
+    },
+    {
+      "name": "김현식",
+      "roles": ["AI Agent"],
+      "contribution": "AI 에이전트 시험 파이프라인(student-trial)과 게이트웨이 시험 도구(run_build · run_render · run_deploy · run_verify), 문제 티켓 Pod 로그 · 스케줄링 실패 분류, playbook · 지시문 정비, AI 서버 EC2 배포, 티켓 사용 상한"
+    }
+  ]
+}
