@@ -1,0 +1,28 @@
+{
+  "teamNumber": 22,
+  "teamName": "NEAR",
+  "title": "오늘,그리고",
+  "summary": "초등 저학년 아이가 AI와 텍스트로 하루를 돌아보고, 자기 말과 직접 그린 그림으로 일기를 완성하는 서비스입니다.",
+  "problem": "하루에 있었던 일을 말로는 설명할 수 있어도, 빈 일기장 앞에서 무엇을 쓸지 고르고 문장으로 옮기기는 어려울 수 있습니다. 아이가 자기 경험에서 쓸 내용을 떠올리고 스스로 정리하도록 돕습니다.",
+  "targetUsers": ["일기 주제를 고르고 글로 옮기는 데 도움이 필요한 초등학교 저학년"],
+  "features": [
+    "아이의 답변에 맞춰 다음 질문을 이어 가는 텍스트 대화",
+    "아이의 말에 근거한 일기 초안과 직접 수정·확인하는 화면",
+    "직접 그린 그림과 일기 저장, 달력에서 날짜별 기록 다시 보기"
+  ],
+  "techHighlights": [
+    "대화 원문과 일기 초안의 근거를 연결하고, 아이가 저장 전에 표현을 확인하고 수정할 수 있게 했습니다.",
+    "FE·BE·AI를 나누고, Supabase를 이용해 계정과 날짜별 기록을 관리합니다.",
+    "Cloudflare Workers AI를 사용해 확인된 일기를 컷별로 그리는 기능을 개발했습니다. 대표 이미지와 추가 이미지는 가상 일기로 만든 생성 예시입니다."
+  ],
+  "techStack": ["JavaScript", "HTML", "CSS", "FastAPI", "Supabase", "Groq GPT-OSS 20B", "Cloudflare Workers AI FLUX.1 schnell"],
+  "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_22_FE",
+  "demoVideoUrl": "",
+  "thumbnail": "thumbnail.jpg",
+  "screenshots": ["screenshots/paper-plane-sample.jpg"],
+  "members": [
+    {"name": "김성은", "roles": ["프론트엔드"], "contribution": "방 화면과 텍스트 대화, 그림일기 작성·조회 화면을 구현했습니다."},
+    {"name": "권기찬", "roles": ["백엔드"], "contribution": "계정 인증, 대화 및 일기 저장·조회 API와 FE·AI 연결을 구현했습니다."},
+    {"name": "오경원", "roles": ["AI"], "contribution": "맥락에 맞는 후속 질문, 일기 초안 생성, 4컷 장면 및 이미지 생성 로직을 구현했습니다."}
+  ]
+}
