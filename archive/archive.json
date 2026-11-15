@@ -24,9 +24,9 @@
   ],
   "techStack": ["React", "Vite", "Typescript", "npm", "Python", "FastAPI", "Pydantic", "SQLAlchemy", "Alembic", "SQLite", "LLM Function Calling"],
   "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_07_FE",
-  "demoUrl": "https://example.com",
-  "demoVideoUrl": "https://example.com",
-  "thumbnail": "thumbnail.png",
+  "demoUrl": "https://woowangthon-topaz.vercel.app",
+  "demoVideoUrl": "https://youtu.be/mEr7cMFiqx4",
+  "thumbnail": "screenshots/thumbnail.png",
   "screenshots": [
     "screenshots/elevator.png",
     "screenshots/departure.png",
