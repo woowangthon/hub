@@ -1,0 +1,39 @@
+{
+  "teamNumber": 6,
+  "teamName": "이현팀",
+  "title": "졸업하지 않는 선배",
+  "summary": "해마다 임원이 바뀌는 학생 조직의 기록을 기억해 두었다가, 새 임원에게 작년 이맘때를 먼저 알려 주는 AI 선배입니다.",
+  "thumbnail": "thumbnail.png",
+  "screenshots": [
+    "screenshots/screen-1.png",
+    "screenshots/screen-2.png",
+    "screenshots/screen-3.png",
+    "screenshots/screen-4.png",
+    "screenshots/screen-5.png",
+    "screenshots/screen-6.png",
+    "screenshots/screen-7.png",
+    "screenshots/screen-8.png"
+  ],
+  "problem": "학생회와 동아리는 해마다 임원이 전부 바뀌고, 지난 기수의 기록은 한글 파일과 PDF에 흩어져 있습니다. 새 임원은 일정이 닥쳐서야 작년 기록을 찾기 시작하고, 같은 실수를 반복합니다.",
+  "targetUsers": ["학생회·동아리 새 임원", "임기를 마치는 임원", "주민자치회처럼 구성원이 자주 바뀌는 조직"],
+  "features": [
+    "문서(PDF·한글·워드) 업로드, 텍스트와 표 추출, 검색 색인",
+    "작년 이맘때 화면과 AI 브리핑: 이번에 챙길 일을 근거 문서와 함께 먼저 알려 줌",
+    "선배에게 묻기: 색인된 기록만 근거로 답하고, 근거 문장을 서버가 원문과 대조",
+    "퇴임 인터뷰: AI가 기록을 짚어 질문하고, 답을 교훈 기록으로 저장",
+    "결정 도우미: AI는 초안만 제안하고 사람이 고쳐서 저장",
+    "표 검색과 지식 그래프"
+  ],
+  "techStack": ["React", "TypeScript", "Vite", "FastAPI", "SQLite FTS5", "Gemini API", "Render", "Vercel"],
+  "techHighlights": [
+    "검색 증강 방식: 관련 구간만 찾아 그 내용으로만 답하고, 인용 문장이 원문에 그대로 있는지 서버에서 다시 확인합니다. 근거가 없으면 모른다고 답합니다.",
+    "SQLite FTS5 trigram 색인으로 별도 벡터 DB 없이 한국어 부분 일치 검색을 구현했고, 표는 쪼개지 않고 통째로 색인합니다.",
+    "AI 로직은 별도 패키지(senior_ai)로 분리해 백엔드가 가져다 쓰며, 모델은 환경 변수로 교체할 수 있습니다."
+  ],
+  "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_06_BE",
+  "demoUrl": "https://woowangthon-team-06-fe.vercel.app",
+  "demoVideoUrl": "https://www.youtube.com/watch?v=KzBS3WmZuIM",
+  "members": [
+    {"name": "이현", "roles": ["기획", "프론트엔드", "백엔드", "AI"], "contribution": "1인 개발: 기획, 화면, API, AI 파이프라인, 배포 전체"}
+  ]
+}
