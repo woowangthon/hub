@@ -4,7 +4,12 @@
   "title": "민원사이",
   "summary": "민원인의 정당한 요청은 보존하고 담당자의 공격적 표현 노출은 줄이며, 텍스트 민원과 웹 음성 상담에서 요약·법령 검색·답변 작성을 돕는 AI 민원 업무 도우미입니다.",
   "thumbnail": "thumbnail.png",
-  "screenshots": ["screenshots/voice-assistance-demo.png"],
+  "screenshots": [
+    "screenshots/presentation-service-overview.png",
+    "screenshots/presentation-processing-flow.png",
+    "screenshots/presentation-ai-human-collaboration.png",
+    "screenshots/voice-assistance-demo.png"
+  ],
   "problem": "민원 담당자는 긴 글이나 통화에 섞인 사실관계, 여러 요구사항, 감정적인 표현을 구분하고 관련 법령을 찾아 답변해야 합니다. 반복적인 욕설과 인신공격에 노출되면 상담 부담이 커지지만, 공격적인 표현을 일괄 삭제하면 정당한 항의나 제3자에게 입은 피해 사실, 보호 요청까지 사라질 수 있습니다. 민원사이는 처리해야 할 사실과 요청을 남기면서 담당자에게 향한 공격 표현의 노출을 줄이고, 민원 접수부터 근거 확인·답변 검토·결과 조회까지 하나의 업무 흐름으로 연결하는 것을 목표로 합니다.",
   "features": [
     "온라인 민원 접수와 결과 조회: 민원인이 홈페이지에서 내용을 제출하고 접수번호로 처리 상태와 등록된 답변을 확인합니다.",
