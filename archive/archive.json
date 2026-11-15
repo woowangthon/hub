@@ -13,13 +13,13 @@
   "techHighlights": [
     "대화 원문과 일기 초안의 근거를 연결하고, 아이가 저장 전에 표현을 확인하고 수정할 수 있게 했습니다.",
     "FE·BE·AI를 나누고, Supabase를 이용해 계정과 날짜별 기록을 관리합니다.",
-    "Cloudflare Workers AI를 사용해 확인된 일기를 컷별로 그리는 기능을 개발했습니다. 대표 이미지와 추가 이미지는 가상 일기로 만든 생성 예시입니다."
+    "Cloudflare Workers AI를 사용해 확인된 일기를 컷별로 그리는 기능을 개발했습니다. 추가 이미지 중 4컷 만화는 가상 일기로 만든 생성 예시입니다."
   ],
   "techStack": ["JavaScript", "HTML", "CSS", "FastAPI", "Supabase", "Groq GPT-OSS 20B", "Cloudflare Workers AI FLUX.1 schnell"],
   "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_22_FE",
   "demoVideoUrl": "https://today-and-near-team22.pages.dev/",
-  "thumbnail": "thumbnail.jpg",
-  "screenshots": ["screenshots/paper-plane-sample.jpg"],
+  "thumbnail": "thumbnail.png",
+  "screenshots": ["screenshots/screenshot_screen2.png", "screenshots/screenshot_screen1.jpg"],
   "members": [
     {"name": "김성은", "roles": ["프론트엔드"], "contribution": "방 화면과 텍스트 대화, 그림일기 작성·조회 화면을 구현했습니다."},
     {"name": "권기찬", "roles": ["백엔드"], "contribution": "계정 인증, 대화 및 일기 저장·조회 API와 FE·AI 연결을 구현했습니다."},
