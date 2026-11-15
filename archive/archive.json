@@ -1,0 +1,82 @@
+{
+  "teamNumber": 8,
+  "teamName": "우왕톤 8팀",
+  "title": "마음결",
+  "summary": "마음결은 상담을 망설이는 청년이 AI와 대화하며 감정과 생각을 정리하고, 상담 준비 메모를 만든 뒤 자신의 지역에 맞는 상담기관과 마음건강 지원제도를 찾아볼 수 있도록 돕는 서비스입니다.",
+  "thumbnail": "main-page.png",
+  "screenshots": [
+    "screenshots/login-page.png",
+    "screenshots/signup-page.png",
+    "screenshots/chat-page.png",
+    "screenshots/memo-page.png",
+    "screenshots/find-facility-page.png",
+    "screenshots/find-support-page.png"
+  ],
+  "problem": "심리적인 어려움을 겪는 청년은 자신의 고민을 어떻게 말해야 할지 막막하거나 상담기관 방문에 부담을 느껴 상담을 미루기도 합니다. 상담을 결심한 뒤에도 가까운 기관이 어디에 있고 어떤 지원제도를 이용할 수 있는지 알아보는 데 어려움을 겪을 수 있습니다.",
+  "features": [
+    "로그인 없이 AI와 대화하며 상황과 감정을 정리하고 상담 준비하기",
+    "대화를 바탕으로 고민과 감정의 흐름, 상담에서 나누고 싶은 내용을 담은 상담 준비 메모 생성, 복사 및 PDF 저장",
+    "생성한 상담 준비 메모를 Notion 페이지에 저장하고 관리",
+    "로그인 후 대화 최대 5개 저장·불러오기·삭제",
+    "기관명·주소 검색, 지역·기관 유형 필터, 네이버 지도 표시 및 내 위치 기준 거리순 정렬",
+    "마음건강 지원사업 검색, 지역·신청 가능 여부 필터, 신청 대상·기한·공식 신청 경로 안내"
+  ],
+  "targetUsers": [
+    "심리적인 어려움을 겪고 있지만 상담을 망설이는 청년",
+    "자신의 감정과 생각을 정리하고 상담에서 나눌 이야기를 준비하고 싶은 사람",
+    "가까운 상담기관이나 이용할 수 있는 마음건강 지원제도를 찾는 사람"
+  ],
+  "techStack": [
+    "Next.js",
+    "React",
+    "Spring Boot",
+    "Java 21",
+    "Supabase (PostgreSQL, Auth)",
+    "AI SDK (ai, @ai-sdk/react)",
+    "Google Gemini API",
+    "GroqCloud API",
+    "네이버 지도 API",
+    "Notion API",
+    "Vercel (프론트엔드 배포)"
+  ],
+  "techHighlights": [
+    "Next.js Route Handlers와 AI SDK로 챗봇 응답 스트리밍 및 상담 준비 메모 생성 구현",
+    "Google Gemini와 GroqCloud를 연동하고, 서버 환경변수로 챗봇과 상담 준비 메모에 사용할 AI 제공업체를 선택하도록 구현",
+    "Supabase Auth로 이메일 회원가입·로그인을 구현하고, 행 수준 보안(RLS)으로 사용자별 대화 기록 접근 제어",
+    "Spring Boot로 국립정신건강센터의 공공 기관 데이터를 수집·정제해 Supabase PostgreSQL에 초기 적재",
+    "프론트엔드에서 Supabase의 기관 목록을 직접 조회하고, 네이버 Geocoding API로 변환한 좌표를 지도 마커와 연동",
+    "Next.js API에서 정부24 공공서비스 데이터를 조회해 마음건강 관련 지원사업을 선별하고 신청 정보를 제공",
+    "상담 준비 메모를 PDF 파일로 변환하고 사용자가 다운로드할 수 있도록 구현",
+    "Notion API를 연동하여 생성한 상담 준비 메모를 Notion 페이지에 저장할 수 있도록 구현"
+  ],
+  "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_08",
+  "demoUrl": "https://woowangthon-team-08.vercel.app/",
+  "demoVideoUrl": "https://www.youtube.com/watch?v=XN4aB62E6kU",
+  "members": [
+    {
+      "name": "심연우",
+      "roles": ["프론트엔드"],
+      "contribution": "프론트엔드 화면 전반의 구현을 주도 및 화면 구현, 네이버 지도 api 연결 및 지도·표시검색·필터링 기능 개발,상담 준비 메모 PDF 변환 및 Notion API 연동 기능 구현, 프로젝트 발표 PPT를 제작 및 발표 자료 정리."
+    },
+    {
+      "name": "이나연",
+      "roles": ["AI챗봇"],
+      "contribution": "AI 챗봇 모델 변경과 서비스 목적에 맞는 프롬프트 작성. 사용자와의 자연스러운 대화 흐름을 개선, 다양한 응답 유형을 추가하여 챗봇의 대화 품질을 향상"
+    },
+    {
+      "name": "이은결",
+      "roles": ["백엔드"],
+      "contribution": "로그인·회원가입 기능과 마음건강 지원정책 API 연동을 구현, 검색 및 분야별 탭 분류 기능을 개발. 또한 챗봇 대화 저장 및 불러오기 기능을 구현, 챗봇 프롬프트 수정 및 대화 흐름 개선, 서비스 시연 영상을 제작"
+    },
+    {
+      "name": "곽선아",
+      "roles": ["백엔드"],
+      "contribution": "Spring Boot 기반 백엔드 서버 구축 및 DB 연동, 공공 API로 상담기관 정보 수집, 챗봇 프롬프트 수정 및 대화 흐름 개선, Vercel을 통한 서비스 배포 및 정상 동작 확인, 아카이빙 자료 작성"
+    },
+    {
+      "name": "김준홍",
+      "roles": ["AI챗봇"],
+      "contribution": "챗봇 API 발급 및 서비스 연동을 담당, 챗봇 대화 저장 및 불러오기 기능을 테스트하여 정상 동작 여부를 확인하고 기능의 안정성을 검증, 사용자 경험 조사 폼 작성 및 관리"
+    }
+  ]
+}
