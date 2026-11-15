@@ -40,12 +40,40 @@
   ],
   "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_30_BE",
   "demoUrl": "https://yeoun-team30-web.onrender.com",
-  "demoVideoUrl": "",
+  "demoVideoUrl": "https://www.youtube.com/watch?v=RI-7WLS6pZA",
   "members": [
     {
+      "name": "김태효",
+      "roles": [
+        "팀 대표",
+        "AI",
+        "기획"
+      ],
+      "contribution": "시연 시나리오, 발표 AI 설명, 문서 점검, 아카이빙 초안, 목소리 합성 부품 연구(다음 단계)"
+    },
+    {
       "name": "고상혁",
-      "roles": ["백엔드", "AI", "배포"],
-      "contribution": "기억 대화(말투 카드·답장·근거 검사), 목소리 확인 보강, 위기 대응, NOVA 연결, Render 배포, AI 검증"
+      "roles": [
+        "백엔드",
+        "AI",
+        "배포"
+      ],
+      "contribution": "기억 대화(말투 카드·답장·근거 검사), 목소리 확인 보강, 위기 대응(규칙·AI 위험도), NOVA 연결, Render 배포, AI 검증"
+    },
+    {
+      "name": "차형창",
+      "roles": [
+        "백엔드"
+      ],
+      "contribution": "초기 서비스 코드 정리, Neon DB 연결"
+    },
+    {
+      "name": "이성준",
+      "roles": [
+        "기획",
+        "발표"
+      ],
+      "contribution": "발표 자료 제작, 시연 영상"
     }
   ]
 }
