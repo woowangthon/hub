@@ -1,10 +1,11 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { githubClient } from './github.mjs';
-import { currentPublication, guardBaseline } from './publication.mjs';
+import { currentPublication, guardBaseline, validateState } from './publication.mjs';
 
 // No dependency installation or participant code runs in the privileged deployment job.
 try {
   const candidate = JSON.parse(await readFile('state/manifest.json', 'utf8'));
+  validateState(candidate);
   const repository = process.env.GH_REPO;
   const current = await currentPublication(githubClient(repository, process.env.GH_TOKEN), repository);
   guardBaseline(candidate, current);

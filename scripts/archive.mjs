@@ -59,7 +59,7 @@ export async function main(args = process.argv.slice(2)) {
     validateBranch(branch ?? '');
     if (!config.teamNumbers.map(branchFor).includes(branch)) fail(branch, 'branch', '등록되지 않은 팀입니다. 운영진에게 팀 번호 등록을 요청해 주세요.');
     const snapshot = await source.snapshot(branch, values.sha);
-    if (!snapshot.treeSha) fail(branch, 'archive/', 'archive 폴더가 없습니다. 제출 예시의 폴더 구조를 확인해 주세요.');
+    if (!snapshot.commitSha) fail(branch, 'branch', '제출 커밋을 찾을 수 없습니다.');
     if (await submissionStatus(source, snapshot, config) === 'template') fail(branch, 'archive/archive.json', '아직 제출 내용이 없습니다. JSON과 프로젝트 이미지를 작성해 주세요.');
     plan = { codeSha, rulesKey: key, fingerprint: digest(snapshot), full: true, teams: [{ ...snapshot, status: 'submitted' }] };
   } else {
@@ -70,12 +70,23 @@ export async function main(args = process.argv.slice(2)) {
   // Fixed, tool-owned directories only; never delete a participant-supplied path.
   const generated = path.join(stateDir, command === 'validate' ? 'validation' : 'generated');
   await rm(generated, { recursive: true, force: true });
-  const result = await collect({ source, plan, config, cacheDir: path.join(stateDir, command === 'validate' ? 'validation-cache' : 'cache'), outputDir: generated });
+  const result = await collect({ source, plan, config, cacheDir: path.join(stateDir, command === 'validate' ? 'validation-cache' : 'cache'), outputDir: generated, strict: command === 'validate' });
   if (command === 'collect') {
     await rm(path.join(root, 'public/archives'), { recursive: true, force: true });
     await cp(path.join(generated, 'public/archives'), path.join(root, 'public/archives'), { recursive: true });
   }
-  const { stats } = result;
+  const { stats, reports } = result;
+  if (command === 'collect') {
+    const retained = reports.filter(report => report.retained);
+    const held = reports.filter(report => !report.retained);
+    await summary(`최신본 공개 예정: ${stats.projects - retained.length}개 팀 · 이전 버전 유지: ${retained.length}개 팀 · 게시 보류: ${held.length}개 팀`);
+    for (const [title, group] of [['이전 버전 유지', retained], ['게시 보류', held]]) {
+      if (!group.length) continue;
+      const report = formatIssues(group.flatMap(team => team.issues), { level: 'warning', title });
+      console.warn(report.annotations);
+      await summary(report.summary);
+    }
+  }
   await summary(`## ${command === 'validate' ? '제출 검사 성공' : '수집 성공'}\n\n| 프로젝트 | 미제출 | 다운로드 파일 | 재사용 파일 | 이미지 해독 검사 |\n|---|---|---|---|---|\n| ${stats.projects} | ${stats.missing} | ${stats.downloaded} | ${stats.reused} | ${stats.decoded} |`);
 }
 

@@ -21,6 +21,9 @@ export function localSource(repository) {
       let treeSha;
       try { treeSha = git('rev-parse', '--verify', `${sha}:archive`).toString().trim(); }
       catch { return { branch, commitSha: sha, treeSha: null }; }
+      if (git('cat-file', '-t', treeSha).toString().trim() !== 'tree') {
+        return { branch, commitSha: sha, treeSha: null, invalidArchive: true };
+      }
       return { branch, commitSha: sha, treeSha: checkSha(treeSha) };
     },
     async files(snapshot) {
@@ -46,7 +49,9 @@ export function githubSource(repository, token, fetcher = fetch) {
       const commitData = await json(`/git/commits/${sha}`);
       const root = await json(`/git/trees/${checkSha(commitData.tree.sha)}`);
       const entry = root.tree.find(entry => entry.path === 'archive');
-      if (entry && (entry.type !== 'tree' || entry.mode !== '040000')) fail(branch, 'archive/', 'archive는 일반 폴더여야 합니다. 링크·서브모듈은 사용할 수 없습니다.');
+      if (entry && (entry.type !== 'tree' || entry.mode !== '040000')) {
+        return { branch, commitSha: sha, treeSha: null, invalidArchive: true };
+      }
       return { branch, commitSha: sha, treeSha: entry?.sha ?? null };
     },
     async files(snapshot) {

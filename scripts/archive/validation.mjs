@@ -85,9 +85,9 @@ export async function validateImage(buffer, path, branch, limits) {
 const escapeCommand = value => String(value).replaceAll('%', '%25').replaceAll('\r', '%0D').replaceAll('\n', '%0A');
 const escapeProperty = value => escapeCommand(value).replaceAll(':', '%3A').replaceAll(',', '%2C');
 const escapeMarkdown = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('|', '&#124;').replace(/[\r\n]/g, ' ');
-export function formatIssues(issues) {
+export function formatIssues(issues, { level = 'error', title = '제출 검증 실패' } = {}) {
   return {
-    annotations: issues.map(i => `::error title=${escapeProperty(`${i.branch} · ${i.field}`)}::${escapeCommand(i.message)}`).join('\n'),
-    summary: ['## 제출 검증 실패', '', '| 팀 | 항목 | 수정 방법 |', '|---|---|---|', ...issues.map(i => `| ${escapeMarkdown(i.branch)} | ${escapeMarkdown(i.field)} | ${escapeMarkdown(i.message)} |`), ''].join('\n'),
+    annotations: issues.map(i => `::${level} title=${escapeProperty(`${i.branch} · ${i.field}`)}::${escapeCommand(i.message)}`).join('\n'),
+    summary: [`## ${title}`, '', '| 팀 | 항목 | 수정 방법 |', '|---|---|---|', ...issues.map(i => `| ${escapeMarkdown(i.branch)} | ${escapeMarkdown(i.field)} | ${escapeMarkdown(i.message)} |`), ''].join('\n'),
   };
 }

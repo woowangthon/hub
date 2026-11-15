@@ -3,15 +3,26 @@ const shaPattern = /^[a-f0-9]{40}$/;
 
 export function validateState(state) {
   if (state === null) return;
-  if (state?.version !== 1 || !/^[a-f0-9]{64}$/.test(state.fingerprint ?? '') || !Array.isArray(state.teams)
+  const version = state?.version;
+  if (![1, 2].includes(version) || !/^[a-f0-9]{64}$/.test(state.fingerprint ?? '') || !Array.isArray(state.teams)
     || typeof state.codeSha !== 'string' || !state.codeSha || typeof state.rulesKey !== 'string' || !state.rulesKey
     || !Number.isSafeInteger(state.projectCount) || state.projectCount < 0
-    || state.teams.some(t => !/^W(?:0[1-9]|[1-9][0-9])$/.test(t.branch) || !['submitted', 'missing', 'template'].includes(t.status)
-      || (t.status !== 'missing' && (!shaPattern.test(t.commitSha ?? '') || !shaPattern.test(t.treeSha ?? ''))))
+    || state.teams.some(team => !validTeamState(team, version))
     || new Set(state.teams.map(t => t.branch)).size !== state.teams.length
-    || state.teams.filter(t => t.status === 'submitted').length !== state.projectCount) {
+    || state.teams.filter(t => version === 1 ? t.status === 'submitted' : t.published !== null).length !== state.projectCount) {
     throw new Error('이전 배포 명세가 올바르지 않습니다. 복구 후 다시 실행해 주세요.');
   }
+}
+
+function validTeamState(team, version) {
+  if (!team || !/^W(?:0[1-9]|[1-9][0-9])$/.test(team.branch)) return false;
+  if (version === 2 && team.published !== null &&
+    (!shaPattern.test(team.published?.commitSha ?? '') || !shaPattern.test(team.published?.treeSha ?? ''))) return false;
+  if (team.status === 'missing') return true;
+  if (version === 2 && team.status === 'invalid') {
+    return shaPattern.test(team.commitSha ?? '') && (team.treeSha === null || shaPattern.test(team.treeSha ?? ''));
+  }
+  return ['submitted', 'template'].includes(team.status) && shaPattern.test(team.commitSha ?? '') && shaPattern.test(team.treeSha ?? '');
 }
 
 // These names are an audit contract: changing the workflow step requires a history migration.

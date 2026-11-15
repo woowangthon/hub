@@ -38,8 +38,9 @@ async function fixture(t) {
   const source = { ...raw, async blob(sha) { downloads++; return raw.blob(sha); } };
   const plan = (previous = null, options = {}) => makePlan({ source, config, codeSha: 'site-code', rulesKey: 'rules-1', previous, ...options });
   const cacheDir = path.join(root, 'cache'), outputDir = path.join(root, 'generated');
-  const run = async (p, custom = config) => collect({ source, config: custom, plan: p, cacheDir, outputDir });
-  return { root, repo, git, source, plan, run, update, commit, cacheDir, outputDir, image, downloads: () => downloads };
+  const run = async (p, custom = config, options = {}) => collect({ source, config: custom, plan: p, cacheDir, outputDir, ...options });
+  const validate = async (p, custom = config) => run(p, custom, { strict: true });
+  return { root, repo, git, source, plan, run, validate, update, commit, cacheDir, outputDir, image, downloads: () => downloads };
 }
 
 test('full first collection produces stable IDs and unchanged original image bytes', async t => {
@@ -130,7 +131,7 @@ test('collection uses pinned commits even when the branch advances mid-run', asy
 test('bad JSON reports multiple field paths and does not produce publication output', async t => {
   const f = await fixture(t);
   await f.update({ ...data, title: ' ', members: [], teamNumber: 32 }); f.commit();
-  await assert.rejects(f.run(await f.plan()), error => {
+  await assert.rejects(f.validate(await f.plan()), error => {
     assert.ok(error instanceof SubmissionError);
     for (const field of ['/title', '/members', '/teamNumber']) assert.ok(error.issues.some(i => i.field === field));
     return true;
@@ -141,7 +142,7 @@ test('missing and malformed images report actionable errors together', async t =
   const f = await fixture(t);
   await rm(path.join(f.repo, 'archive/thumbnail.png'));
   await writeFile(path.join(f.repo, 'archive/screenshots/screen.png'), 'not an image'); f.commit();
-  await assert.rejects(f.run(await f.plan()), error => {
+  await assert.rejects(f.validate(await f.plan()), error => {
     assert.equal(error.issues.length, 2); assert.ok(error.issues.some(i => i.message.includes('대소문자')));
     assert.ok(error.issues.some(i => i.message.includes('해독'))); return true;
   });
@@ -150,18 +151,18 @@ test('truncated images and mismatched file extensions are rejected', async t => 
   const f = await fixture(t);
   const bytes = await f.image('red');
   await writeFile(path.join(f.repo, 'archive/thumbnail.png'), bytes.subarray(0, Math.floor(bytes.length / 2))); f.commit();
-  await assert.rejects(f.run(await f.plan()), SubmissionError);
+  await assert.rejects(f.validate(await f.plan()), SubmissionError);
   await writeFile(path.join(f.repo, 'archive/thumbnail.png'), await sharp(bytes).jpeg().toBuffer()); f.commit();
-  await assert.rejects(f.run(await f.plan()), SubmissionError);
+  await assert.rejects(f.validate(await f.plan()), SubmissionError);
 });
 test('symlink Git entries and oversized files are rejected before content download', async t => {
   const f = await fixture(t);
   const target = await f.image('red');
   const sha = f.git('hash-object', '-w', '--stdin'); // empty stdin object; metadata check happens first
   f.git('update-index', '--add', '--cacheinfo', `120000,${sha},archive/link.png`); f.git('commit', '-m', 'link fixture');
-  await assert.rejects(f.run(await f.plan()), SubmissionError); assert.equal(f.downloads(), 0);
+  await assert.rejects(f.validate(await f.plan()), SubmissionError); assert.equal(f.downloads(), 0);
   const f2 = await fixture(t);
-  await assert.rejects(f2.run(await f2.plan(), { ...config, limits: { ...config.limits, imageBytes: target.length - 1 } }), SubmissionError);
+  await assert.rejects(f2.validate(await f2.plan(), { ...config, limits: { ...config.limits, imageBytes: target.length - 1 } }), SubmissionError);
 });
 async function emptySubmission(f, json = '') {
   await writeFile(path.join(f.repo, 'archive/archive.json'), json);
@@ -172,7 +173,7 @@ async function emptySubmission(f, json = '') {
   f.commit();
 }
 
-test('missing/template teams are excluded, previously published disappearance blocks', async t => {
+test('missing/template teams are excluded unless a published version must be retained', async t => {
   const f = await fixture(t); const first = await f.run(await f.plan());
   const extra = { ...config, teamNumbers: [1, 2] };
   const plan = await f.plan(null, { config: extra });
@@ -181,7 +182,13 @@ test('missing/template teams are excluded, previously published disappearance bl
   const templatePlan = await f.plan();
   assert.equal(templatePlan.teams[0].status, 'template');
   assert.equal((await f.run(templatePlan)).manifest.projectCount, 0);
-  await assert.rejects(f.plan(first.manifest), /검증/);
+  const retained = await f.run(await f.plan(first.manifest));
+  assert.equal(retained.reports[0].retained, true);
+  assert.deepEqual(retained.projects, first.projects);
+  f.git('branch', '-m', 'main');
+  const missing = await f.run(await f.plan(retained.manifest));
+  assert.equal(missing.manifest.teams[0].status, 'missing');
+  assert.deepEqual(missing.projects, first.projects);
 });
 
 test('README and example edits cannot turn an empty submission into a project or trigger a rebuild', async t => {
@@ -202,26 +209,30 @@ test('partial JSON and image-only submissions still fail instead of being silent
   for (const json of ['{', '{}', 'null', JSON.stringify(data)]) {
     await writeFile(path.join(f.repo, 'archive/archive.json'), json); f.commit();
     const plan = await f.plan(); assert.equal(plan.teams[0].status, 'submitted');
-    await assert.rejects(f.run(plan), SubmissionError);
+    await assert.rejects(f.validate(plan), SubmissionError);
   }
   await writeFile(path.join(f.repo, 'archive/archive.json'), '');
   await writeFile(path.join(f.repo, 'archive/thumbnail.png'), await f.image('red')); f.commit();
   assert.equal((await f.plan()).teams[0].status, 'submitted');
-  await assert.rejects(f.run(await f.plan()), SubmissionError);
+  await assert.rejects(f.validate(await f.plan()), SubmissionError);
   await rm(path.join(f.repo, 'archive/archive.json')); f.commit();
-  await assert.rejects(f.run(await f.plan()), error => error.issues.some(i => i.message.includes('archive.json이 없습니다')));
+  await assert.rejects(f.validate(await f.plan()), error => error.issues.some(i => i.message.includes('archive.json이 없습니다')));
 });
 
 test('blank submissions cannot bypass invalid metadata, limits, UTF-8 or blob integrity', async t => {
   const f = await fixture(t); await emptySubmission(f, ' ');
   const raw = localSource(f.repo);
-  await assert.rejects(f.plan(null, { source: { ...raw, blob: async () => Buffer.from('x') } }), /검증/);
+  await assert.rejects(f.plan(null, { source: { ...raw, blob: async () => Buffer.from('x') } }), /Git 식별값/);
   const files = await raw.files(await raw.snapshot('W01'));
   for (const patch of [{ mode: '120000' }, { size: config.limits.jsonBytes + 1 }, { size: -1 }]) {
-    await assert.rejects(f.plan(null, { source: { ...raw, files: async () => files.map(e => e.path === 'archive.json' ? { ...e, ...patch } : e) } }), /검증/);
+    const plan = await f.plan(null, { source: { ...raw, files: async () => files.map(e => e.path === 'archive.json' ? { ...e, ...patch } : e) } });
+    const result = await f.run(plan);
+    assert.equal(plan.teams[0].status, 'invalid');
+    assert.equal(result.reports[0].retained, false);
+    assert.equal(result.projects.length, 0);
   }
   await writeFile(path.join(f.repo, 'archive/archive.json'), Buffer.from([255])); f.commit();
-  await assert.rejects(f.run(await f.plan()), SubmissionError);
+  await assert.rejects(f.validate(await f.plan()), SubmissionError);
 });
 
 test('after artifact expiry site state supports unchanged, incremental, full and disappearance checks', async t => {
@@ -250,8 +261,67 @@ test('after artifact expiry site state supports unchanged, incremental, full and
   assert.deepEqual(incremental.stats, { downloaded: 1, reused: 2, decoded: 0, projects: 1, missing: 0 });
   assert.equal((await f.run(await f.plan(previous, { full: true }))).stats.downloaded, 3);
   await emptySubmission(f);
-  await assert.rejects(f.plan(previous), SubmissionError);
+  const retained = await f.run(await f.plan(previous));
+  assert.deepEqual(retained.manifest.teams[0].published, previous.teams[0].published);
+  assert.equal(retained.projects[0].title, data.title);
 });
+test('mixed submissions publish valid teams, retain legacy published files, and publish repaired teams later', async t => {
+  const f = await fixture(t);
+  const initial = await f.run(await f.plan());
+  const { published: lastPublished, ...firstAttempt } = initial.manifest.teams[0];
+  const legacy = { ...initial.manifest, version: 1, teams: [firstAttempt] };
+  const oldImage = await readFile(path.join(f.outputDir, 'public', initial.projects[0].thumbnail));
+  await f.update({ ...data, title: 'invalid update' });
+  await writeFile(path.join(f.repo, 'archive/thumbnail.png'), 'invalid image');
+  f.commit();
+  f.git('checkout', '-b', 'W02');
+  await f.update({ ...data, teamNumber: 2, demoVideoUrl: '' });
+  f.commit();
+  f.git('checkout', '-b', 'W03');
+  await f.update({ ...data, teamNumber: 3, title: 'valid new team' });
+  await writeFile(path.join(f.repo, 'archive/thumbnail.png'), await f.image('green'));
+  f.commit();
+
+  const all = { ...config, teamNumbers: [1, 2, 3] };
+  const plan = await f.plan(legacy, { config: all, full: true });
+  const result = await f.run(plan, all);
+  assert.deepEqual(result.projects.map(p => p.id), ['team-01', 'team-03']);
+  assert.deepEqual(result.reports.map(r => [r.branch, r.retained]), [['W01', true], ['W02', false]]);
+  assert.deepEqual(result.projects[0], initial.projects[0]);
+  assert.deepEqual(await readFile(path.join(f.outputDir, 'public', result.projects[0].thumbnail)), oldImage);
+  assert.deepEqual(result.manifest.teams[0].published, lastPublished);
+  assert.notEqual(result.manifest.teams[0].commitSha, lastPublished.commitSha);
+  assert.equal(result.manifest.teams[1].published, null);
+  assert.equal((await f.plan(result.manifest, { config: all })).needsBuild, false);
+
+  f.git('checkout', 'W02');
+  await f.update({ ...data, teamNumber: 2, title: 'repaired' });
+  await writeFile(path.join(f.repo, 'archive/thumbnail.png'), await f.image('blue'));
+  f.commit();
+  const next = await f.plan(result.manifest, { config: all });
+  assert.equal(next.needsBuild, true);
+  const repaired = await f.run(next, all);
+  assert.deepEqual(repaired.projects.map(p => p.id), ['team-01', 'team-02', 'team-03']);
+  assert.deepEqual(repaired.manifest.teams[0].published, lastPublished);
+  assert.equal(repaired.manifest.teams[1].published.commitSha, repaired.manifest.teams[1].commitSha);
+});
+
+test('failed Git reads and unavailable prior versions still stop deployment', async t => {
+  const f = await fixture(t);
+  const initial = await f.run(await f.plan());
+  const networkFailure = { ...f.source, blob: async () => { throw new Error('GitHub API unavailable'); } };
+  await assert.rejects(f.run(await f.plan(null, { full: true }), config, { source: networkFailure }), /GitHub API unavailable/);
+
+  await f.update({ ...data, demoVideoUrl: '' });
+  f.commit();
+  const previousTree = initial.manifest.teams[0].published.treeSha;
+  const unavailable = { ...f.source, files: team => {
+    if (team.treeSha === previousTree) throw new Error('Git tree unavailable');
+    return f.source.files(team);
+  } };
+  await assert.rejects(f.run(await f.plan(initial.manifest), config, { source: unavailable }), /마지막 공개 버전/);
+});
+
 test('same filenames across teams cannot collide and team identity is stable', async t => {
   const f = await fixture(t); f.git('checkout', '-b', 'W02');
   await f.update({ ...data, teamNumber: 2, teamName: '두번째 팀' }); f.commit();
