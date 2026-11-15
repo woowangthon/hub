@@ -1,0 +1,63 @@
+{
+  "teamNumber": 14,
+  "teamName": "투게더",
+  "title": "Handoff",
+  "summary": "인수인계서에 없는 것을 찾아 전임에게 묻고, 후임에게는 전임이 확인한 말만 전하는 AI 서비스입니다.",
+  "thumbnail": "thumbnail.png",
+  "screenshots": [
+    "screenshots/screen-1.png",
+    "screenshots/screen-2.png",
+    "screenshots/screen-3.png",
+    "screenshots/screen-4.png"
+  ],
+  "problem": "동아리·학생회는 해마다 임원이 바뀌는데, 인수인계서가 있어도 담당자 연락 방법, 기한, 판단 기준처럼 전임에게 당연한 것은 적히지 않습니다. 후임은 무엇을 모르는지 몰라 질문하지 못하고, 1년 치 단톡 기록은 너무 길어 다시 읽지 못합니다. 실제 동아리 단톡 3,948개를 분석했을 때도 업무 6개×요소 6개 36칸 중 그대로 따라 할 수 있을 만큼 구체적인 칸은 10칸(28%)뿐이었습니다.",
+  "features": [
+    "회칙·공지를 올리면 AI가 업무 항목을 뽑고, 전임이 체크로 다룰 항목을 고릅니다",
+    "카톡 대화에서 업무 사실을 출처 메시지와 함께 뽑고, 시기·연락경로·판단기준·자주 틀리는 점·미리 할 일·배경 6요소 중 비어 있는 칸을 체크표로 보여 줍니다",
+    "비어 있는 칸을 질문 카드 5장으로 만들어 전임에게 3단계(사실·예외·사례)로 묻고, 답을 정리한 초안을 전임이 맞음·수정·삭제로 승인합니다",
+    "승인된 기록만 인수인계 문서가 되고, 후임의 질문에는 승인된 원문을 출처와 함께 그대로 보여 주며 기록이 없으면 '기록 없음'과 함께 전임에게 질문을 전달합니다"
+  ],
+  "targetUsers": [
+    "해마다 임원이 바뀌는 동아리·학생회·소규모 팀의 전임 임원",
+    "업무를 넘겨받는 후임 임원"
+  ],
+  "techStack": [
+    "React 19",
+    "Vite",
+    "TypeScript",
+    "Tailwind CSS 4",
+    "Python 3.12",
+    "FastAPI",
+    "pydantic",
+    "SQLite",
+    "Claude Haiku 5.5",
+    "Vercel",
+    "Render"
+  ],
+  "techHighlights": [
+    "출처 메시지가 없는 사실은 코드에서 폐기하고, AI가 '해당 없음'을 낼 수 없도록 출력 스키마에서 값을 제외해 환각이 문서에 들어가는 경로를 막았습니다",
+    "후임 질문에는 AI가 답을 생성하지 않고 승인된 기록을 키워드로 검색해 원문만 보여 줍니다",
+    "질문 문장은 AI가 쓰되 유도 표현은 정규식으로 검사해 재생성하고, 3회 실패하면 기본 질문으로 대체합니다"
+  ],
+  "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_14_FE",
+  "demoUrl": "https://woowangthon-team-14-fe.vercel.app",
+  "demoVideoUrl": "https://youtu.be/ug_3mFLfXkw",
+  "members": [
+    {
+      "name": "김민진",
+      "roles": [
+        "프론트엔드",
+        "검증"
+      ],
+      "contribution": "전체 화면 구현, 백엔드 연동, 화면 테스트 214개 작성, Vercel 배포"
+    },
+    {
+      "name": "문정현",
+      "roles": [
+        "백엔드",
+        "AI"
+      ],
+      "contribution": "자료·카톡 분석 파이프라인, 질문 생성, 승인·발행·검색 API 구현, 백엔드 테스트, Render 배포"
+    }
+  ]
+}
