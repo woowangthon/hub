@@ -5,6 +5,9 @@
   "summary": "민원인의 정당한 요청은 보존하고 담당자의 공격적 표현 노출은 줄이며, 텍스트 민원과 웹 음성 상담에서 요약·법령 검색·답변 작성을 돕는 AI 민원 업무 도우미입니다.",
   "thumbnail": "thumbnail.png",
   "screenshots": [
+    "screenshots/live-citizen-home.png",
+    "screenshots/live-staff-inbox.png",
+    "screenshots/live-staff-detail.png",
     "screenshots/presentation-service-overview.png",
     "screenshots/presentation-processing-flow.png",
     "screenshots/presentation-ai-human-collaboration.png",
