@@ -1,0 +1,86 @@
+{
+  "teamNumber": 5,
+  "teamName": "우짤래",
+  "title": "온보딩",
+  "summary": "해외 취업·인턴·워킹홀리데이 준비 청년의 시드니 주거 후보, 정착 예산과 준비 절차를 연결하는 서비스",
+  "problem": "주거비, 교통·생활비, 초기 정착 비용과 준비 절차가 흩어져 있어 해외 정착에 필요한 예산과 행동 순서를 파악하기 어렵습니다.",
+  "targetUsers": [
+    "시드니 해외 취업·인턴 준비 청년",
+    "시드니 워킹홀리데이 준비자"
+  ],
+  "features": [
+    "체류 목적·근무 지역·예산·통근 조건 입력",
+    "공개 요금 스냅샷 기반 주거 후보 최대 3개 비교",
+    "월 지출과 초기 정착 비용 분리 및 미확인 비용 표시",
+    "공식 근거 링크를 연결한 시기별 준비 체크리스트",
+    "Gemma 자연어 조건 해석과 서버 재계산"
+  ],
+  "techHighlights": [
+    "Gemma는 허용된 조건과 설명 초점을 추출하고, 서버가 조건을 검증해 비용을 계산합니다.",
+    "등록된 출처와 확인일을 제공하고 미확인 비용·통근을 구분합니다.",
+    "Next.js 서버 함수 직접 호출 및 FastAPI AI 게이트웨이 연결 경로를 구현했습니다."
+  ],
+  "techStack": [
+    "Next.js",
+    "React",
+    "TypeScript",
+    "Python",
+    "FastAPI",
+    "Pydantic",
+    "Google Gemma",
+    "Vercel"
+  ],
+  "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_05_FE",
+  "demoUrl": "https://woowangthon-team-05-fe.vercel.app/",
+  "demoVideoUrl": "https://youtu.be/evU63AW68Vs",
+  "thumbnail": "thumbnail.png",
+  "screenshots": [
+    "screenshots/screen-1.png",
+    "screenshots/screen-2.png",
+    "screenshots/screen-3.png",
+    "screenshots/screen-4.png",
+    "screenshots/screen-5.png"
+  ],
+  "members": [
+    {
+      "name": "박조현",
+      "roles": [
+        "설계",
+        "개발"
+      ],
+      "contribution": "온보딩 서비스 설계 및 개발 공동 참여"
+    },
+    {
+      "name": "박승준",
+      "roles": [
+        "설계",
+        "개발"
+      ],
+      "contribution": "온보딩 서비스 설계 및 개발 공동 참여"
+    },
+    {
+      "name": "우태현",
+      "roles": [
+        "설계",
+        "개발"
+      ],
+      "contribution": "온보딩 서비스 설계 및 개발 공동 참여"
+    },
+    {
+      "name": "신종환",
+      "roles": [
+        "설계",
+        "개발"
+      ],
+      "contribution": "온보딩 서비스 설계 및 개발 공동 참여"
+    },
+    {
+      "name": "박성범",
+      "roles": [
+        "설계",
+        "개발"
+      ],
+      "contribution": "온보딩 서비스 설계 및 개발 공동 참여"
+    }
+  ]
+}
