@@ -10,7 +10,8 @@
     "screenshots/screen-3.png",
     "screenshots/screen-4.png",
     "screenshots/screen-5.png",
-    "screenshots/screen-6.png"
+    "screenshots/screen-6.png",
+    "screenshots/screen-7.png"
   ],
   "problem": "점자블록이 잘못 깔리면 시각장애인이 횡단보도가 아닌 차도로 유도되는 등 위험하지만, 설치 오류 점검은 사람이 직접 걸어 다니며 해야 합니다. 서울시는 현장조사원 52명이 2년간 보도 1,671km를 걸어 기준 미달·불편 사항 7만 4천여 건을 찾았고, 그중 횡단보도·점자블록 관련이 40.5%로 가장 많았습니다. 일반 시민은 잘못된 설치를 보더라도 무엇이 기준에 어긋나는지 판단하고 설명해 신고하기 어렵고, 관리자는 사진과 설명만으로는 문제를 파악하기 어려워 다시 현장을 확인해야 합니다.",
   "features": [
