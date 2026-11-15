@@ -48,16 +48,25 @@
   ],
   "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_40_BE",
   "demoUrl": "https://probai.cbnu-ipse.co.kr",
-  "demoVideoUrl": "https://www.youtube.com/watch?v=REPLACE_ME",
+  "demoVideoUrl": "https://www.youtube.com/watch?v=a1UdkvE7YxI",
   "members": [
     {
-      "name": "[이름 입력]",
-      "roles": ["기획", "프론트엔드", "백엔드", "AI", "배포"],
+      "name": "박종은",
+      "roles": [
+        "기획",
+        "프론트엔드",
+        "백엔드",
+        "AI",
+        "배포"
+      ],
       "contribution": "네 단계 학습 흐름, 교수 과제 설정과 현황 화면, 사전 사후 평가와 AI 채점, 학습 단계 AI 대화, 로그인, 운영 배포와 CI/CD 구현"
     },
     {
-      "name": "[이름 입력]",
-      "roles": ["프론트엔드", "백엔드"],
+      "name": "안준석",
+      "roles": [
+        "프론트엔드",
+        "백엔드"
+      ],
       "contribution": "과제 단계 작업공간의 자동 버전 기록, AI 수정안, Docker 코드 실행, ONLYOFFICE 보고서 편집, 교수 지정 실행 환경 구현"
     }
   ]
