@@ -27,7 +27,7 @@
   "techHighlights": [
     "추천 판단은 규칙 기반 엔진(관심사·취향·거리·시간)이 하고, Gemini는 설명과 구조화만 담당합니다. AI 응답은 후보 밖 행사·근거 없는 숫자가 있으면 규칙 기반 문장으로 대체합니다.",
     "뉴스 파업 기사는 Gemini가 운영사·지역·상태·날짜로 구조화하고, 인용문이 기사 원문에 실제로 있는지 코드로 검사한 뒤에만 표시합니다.",
-    "공공데이터(서울시·KOPIS·TourAPI·TOPIS·ITS)를 GitHub Actions로 매일 수집·정규화하고, 단위 테스트 302개(FE·AI·BE)로 핵심 판단 로직을 검증합니다."
+    "공공데이터(서울시·KOPIS·TourAPI·TOPIS·ITS)를 GitHub Actions로 매일 수집·정규화하고, 단위 테스트 325개(FE·AI·BE)로 핵심 판단 로직을 검증합니다."
   ],
   "techStack": [
     "Flutter",
