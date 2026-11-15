@@ -5,8 +5,7 @@
   "summary": "기숙사 룸메이트의 생활습관과 서로의 희망 조건을 양방향으로 비교하고, Gemini AI 추천과 소통 기능으로 적합한 상대를 찾도록 돕는 웹서비스입니다.",
   "thumbnail": "thumbnail.png",
   "screenshots": [
-    "screenshots/home.png",
-    "screenshots/checklist.png",
+    "screenshots/01-home.png",
     "screenshots/ai-recommendation.png",
     "screenshots/checklist-comparison.png",
     "screenshots/chat.png"
