@@ -9,7 +9,8 @@
   "screenshots/screen-2.png",
   "screenshots/screen-3.png",
   "screenshots/screen-4.png",
-  "screenshots/screen-5.png"
+  "screenshots/screen-5.png",
+  "screenshots/screen-6.png"
 ],
 "problem": "단체여행에서는 구성원마다 가고싶은 장소, 피하고 싶은 활동, 음식 조건과 도보이동 가능 시간 등이 다릅니다. 이에 여행계획을 조율하는 대표 담당자가 흩어진 의견을 모으고 장소와 이동경로, 예약 일정을 반복해서 조정해야하는 번거로움이 있습니다. 이러한 조율자의 역할을 AI가 해줌으로써 일행들이 각자의 조건을 익명으로 자유롭게 입력하고 AI와 함께 검토하는 흐름으로 준비부담을 줄이고자 합니다.",
 "features": [
