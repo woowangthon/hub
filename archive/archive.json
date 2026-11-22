@@ -34,7 +34,7 @@
     "서비스마다 슬롯 A · B를 두어 새 버전을 확인한 뒤에만 공개 연결을 바꾸므로, 배포가 실패해도 지금 서비스는 그대로입니다."
   ],
   "repositoryUrl": "https://github.com/woowangthon/WOOWANGTHON_TEAM_18",
-  "demoUrl": "https://app.stairnoworks.com",
+  "demoUrl": "https://d1zk9siiv540df.cloudfront.net/",
   "demoVideoUrl": "https://www.youtube.com/watch?v=i7fScZvJQtE",
   "members": [
     {
